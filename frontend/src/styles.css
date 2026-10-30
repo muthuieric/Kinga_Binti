@@ -1,0 +1,90 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-risk-1: var(--risk-1);
+  --color-risk-2: var(--risk-2);
+  --color-risk-3: var(--risk-3);
+  --color-risk-4: var(--risk-4);
+}
+
+:root {
+  --radius: 0.875rem;
+  --background: oklch(0.97 0.018 80);
+  --foreground: oklch(0.22 0.03 40);
+  --card: oklch(0.99 0.01 80);
+  --card-foreground: oklch(0.22 0.03 40);
+  --primary: oklch(0.5 0.17 30);
+  --primary-foreground: oklch(0.98 0.01 80);
+  --secondary: oklch(0.92 0.04 75);
+  --secondary-foreground: oklch(0.3 0.05 40);
+  --muted: oklch(0.93 0.025 78);
+  --muted-foreground: oklch(0.48 0.03 50);
+  --accent: oklch(0.75 0.14 70);
+  --accent-foreground: oklch(0.22 0.03 40);
+  --destructive: oklch(0.55 0.21 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.55 0.12 150);
+  --warning: oklch(0.72 0.15 65);
+  --ink: oklch(0.22 0.035 35);
+  --ink-foreground: oklch(0.95 0.02 80);
+  --border: oklch(0.87 0.03 70);
+  --input: oklch(0.87 0.03 70);
+  --ring: oklch(0.5 0.17 30);
+  --risk-1: oklch(0.9 0.05 85);
+  --risk-2: oklch(0.8 0.12 70);
+  --risk-3: oklch(0.65 0.17 45);
+  --risk-4: oklch(0.48 0.18 28);
+  --shadow-soft: 0 1px 2px oklch(0.3 0.05 40 / 6%), 0 8px 24px -12px oklch(0.3 0.05 40 / 18%);
+  --pattern-shuka: repeating-linear-gradient(90deg, var(--primary) 0 14px, var(--ink) 14px 18px, var(--primary) 18px 30px, var(--accent) 30px 34px);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+}
+
+@utility card-soft {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+}
+@utility shuka {
+  background: var(--pattern-shuka);
+}

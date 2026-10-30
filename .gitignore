@@ -1,0 +1,26 @@
+backend/venv/
+backend/site-packages/
+node_modules/
+frontend/node_modules/
+.next/
+*.pyc
+__pycache__/
+
+# Secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Local database files contain consent-gated narrative data — never commit
+*.db
+narratives_docs.json
+
+# Downloaded translation model weights (~3.5 GB) — never commit
+backend/models/
+
+
+backend/models/
+backend/backend/models/
+*.safetensors
+*.bin
+.locks/
