@@ -53,26 +53,75 @@ export default function CaptureClient() {
   const [busy, setBusy] = useState(false);
   const [view, setView] = useState<"overview" | "xai">("overview");
   const mr = useRef<MediaRecorder | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   async function toggleRec() {
     if (rec === "rec") {
       mr.current?.stop();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+      }
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const r = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
+        ? 'audio/webm;codecs=opus' 
+        : MediaRecorder.isTypeSupported('audio/webm') 
+          ? 'audio/webm'
+          : 'audio/ogg;codecs=opus';
+      const r = new MediaRecorder(stream, { mimeType });
       const chunks: Blob[] = [];
-      r.ondataavailable = (e) => chunks.push(e.data);
+      r.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
       r.onstop = () => {
-        setAudioUrl(URL.createObjectURL(new Blob(chunks)));
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
         setRec("done");
         stream.getTracks().forEach((t) => t.stop());
-        setTimeout(() => setText(EXAMPLE), 600);
       };
       r.start();
       mr.current = r;
       setRec("rec");
+
+      // Use Web Speech API for real transcription
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+        recognition.lang = "sw-KE";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = (event: any) => {
+          let finalTranscript = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript + " ";
+            }
+          }
+          if (finalTranscript.trim()) {
+            setText((prev) => (prev ? prev + " " + finalTranscript.trim() : finalTranscript.trim()));
+          }
+        };
+        recognition.onerror = () => {
+          // Fallback silently
+        };
+        try {
+          recognition.start();
+        } catch {}
+      }
     } catch {
       setRec("rec");
       setTimeout(() => {
