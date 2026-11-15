@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Mic, Square } from "lucide-react";
 import { PageHead, CatBadge } from "@/components/AppShell";
-import { SUB_COUNTIES, CATEGORY_LABEL, type Analysis, type Category } from "@/lib/neno";
+import { SUB_COUNTIES, CATEGORY_LABEL, type Analysis, type Category } from "@/lib/kingabinti";
 import { api, type BackendAnalysis } from "@/lib/api";
 
 const field =
@@ -173,7 +173,7 @@ export default function CaptureClient() {
       }));
       const stance = a.discourse_stance?.toLowerCase().includes("challeng") || a.discourse_stance?.toLowerCase().includes("resist") ? "opposition" : a.discourse_stance?.toLowerCase().includes("perpet") ? "advocacy" : "descriptive";
       const analysis: Analysis = { category, confidence: a.prediction_score, scores, markers: markers.sort((x, y) => x.index - y.index), stance: stance as Analysis["stance"] };
-      const token = "NG-NAR-" + res.narrative_id.slice(0,8).toUpperCase();
+      const token = "KB-NAR-" + res.narrative_id.slice(0,8).toUpperCase();
       setResult({ a: analysis, id: token, hash: "server-audited", text, notes: a.cultural_context_notes || "" });
       setView("overview");
     } catch (err: any) {

@@ -82,7 +82,7 @@ export async function sha256(s: string) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export const pseudoId = () => "NG-NAR-" + Math.random().toString(16).slice(2, 10).toUpperCase();
+export const pseudoId = () => "KB-NAR-" + Math.random().toString(16).slice(2, 10).toUpperCase();
 
 export type Narrative = {
   id: string;
@@ -100,12 +100,12 @@ export type Narrative = {
 };
 
 export const SAMPLE: Narrative[] = [
-  { id: "NG-NAR-4F2A91C0", text: "Wazee wanasema ukeketaji ni desturi lazima kabla ya msichana kuolewa.", lang: "sw", subCounty: "Narok South", ageBand: "36–50", gender: "Male", partner: PARTNERS[0], category: "fgm", confidence: 0.84, date: "2026-10-24", hash: "a3f9…7c21", synced: true },
-  { id: "NG-NAR-91BE03DD", text: "Emuratare e nkera natii enkolong ninye, entito naa esiankiki.", lang: "maa", subCounty: "Kajiado West", ageBand: "18–25", gender: "Female", partner: PARTNERS[2], category: "fgm", confidence: 0.79, date: "2026-10-23", hash: "0bd1…e844", synced: true },
-  { id: "NG-NAR-77C1A5E2", text: "Baba alipokea mahari, ndoa za mapema kwa binti wa miaka kumi na nne.", lang: "sw", subCounty: "Narok West", ageBand: "26–35", gender: "Female", partner: PARTNERS[1], category: "child_marriage", confidence: 0.88, date: "2026-10-22", hash: "c88e…19fa", synced: true },
-  { id: "NG-NAR-0D44B7F1", text: "Akina mama wanapinga ukeketaji na wanataka wasichana waende shule.", lang: "sw", subCounty: "Kilgoris", ageBand: "36–50", gender: "Female", partner: PARTNERS[0], category: "fgm", confidence: 0.66, date: "2026-10-21", hash: "5e12…aa03", synced: true },
-  { id: "NG-NAR-E3A0C8B9", text: "Mvua imenyesha na mifugo ina malisho mazuri msimu huu.", lang: "sw", subCounty: "Kajiado North", ageBand: "50+", gender: "Male", partner: PARTNERS[2], category: "none", confidence: 0.71, date: "2026-10-20", hash: "f701…3b6d", synced: true },
-  { id: "NG-NAR-5B9F2E10", text: "Enkiyieu oo nkishu, esiankiki naa entito sapuk.", lang: "maa", subCounty: "Kajiado Central", ageBand: "26–35", gender: "Male", partner: PARTNERS[1], category: "child_marriage", confidence: 0.74, date: "2026-10-19", hash: "9a4c…d2e7", synced: false },
+  { id: "KB-NAR-4F2A91C0", text: "Wazee wanasema ukeketaji ni desturi lazima kabla ya msichana kuolewa.", lang: "sw", subCounty: "Narok South", ageBand: "36–50", gender: "Male", partner: PARTNERS[0], category: "fgm", confidence: 0.84, date: "2026-10-24", hash: "a3f9…7c21", synced: true },
+  { id: "KB-NAR-91BE03DD", text: "Emuratare e nkera natii enkolong ninye, entito naa esiankiki.", lang: "maa", subCounty: "Kajiado West", ageBand: "18–25", gender: "Female", partner: PARTNERS[2], category: "fgm", confidence: 0.79, date: "2026-10-23", hash: "0bd1…e844", synced: true },
+  { id: "KB-NAR-77C1A5E2", text: "Baba alipokea mahari, ndoa za mapema kwa binti wa miaka kumi na nne.", lang: "sw", subCounty: "Narok West", ageBand: "26–35", gender: "Female", partner: PARTNERS[1], category: "child_marriage", confidence: 0.88, date: "2026-10-22", hash: "c88e…19fa", synced: true },
+  { id: "KB-NAR-0D44B7F1", text: "Akina mama wanapinga ukeketaji na wanataka wasichana waende shule.", lang: "sw", subCounty: "Kilgoris", ageBand: "36–50", gender: "Female", partner: PARTNERS[0], category: "fgm", confidence: 0.66, date: "2026-10-21", hash: "5e12…aa03", synced: true },
+  { id: "KB-NAR-E3A0C8B9", text: "Mvua imenyesha na mifugo ina malisho mazuri msimu huu.", lang: "sw", subCounty: "Kajiado North", ageBand: "50+", gender: "Male", partner: PARTNERS[2], category: "none", confidence: 0.71, date: "2026-10-20", hash: "f701…3b6d", synced: true },
+  { id: "KB-NAR-5B9F2E10", text: "Enkiyieu oo nkishu, esiankiki naa entito sapuk.", lang: "maa", subCounty: "Kajiado Central", ageBand: "26–35", gender: "Male", partner: PARTNERS[1], category: "child_marriage", confidence: 0.74, date: "2026-10-19", hash: "9a4c…d2e7", synced: false },
 ];
 
 export const CONFUSION = [

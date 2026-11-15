@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/user/Downloads/NLP Maa/Neno guard/venv/bin/python3" "$0" "$@"
+'''exec' "/home/user/Downloads/NLP_Maa/Kinga_Binti/venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

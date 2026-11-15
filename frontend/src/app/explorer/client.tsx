@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageHead, CatBadge } from "@/components/AppShell";
-import { SUB_COUNTIES } from "@/lib/neno";
+import { SUB_COUNTIES } from "@/lib/kingabinti";
 import { api } from "@/lib/api";
 
 const sel = "rounded-full border bg-card px-4 py-2 text-sm";
@@ -112,7 +112,7 @@ export default function ExplorerClient() {
         }
       />
       <div className="mb-5 flex flex-wrap gap-2">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search text or NG-NAR id…" className={`${sel} min-w-64 flex-1`} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search text or KB-NAR id…" className={`${sel} min-w-64 flex-1`} />
         <select value={lang} onChange={(e) => setLang(e.target.value)} className={sel}>
           <option value="">All languages</option>
           <option value="sw">Kiswahili</option>
@@ -177,7 +177,7 @@ export default function ExplorerClient() {
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div><p className="text-xs text-muted-foreground">Record</p><p className="font-mono">{inspect.narrative_id}</p></div>
-                <div><p className="text-xs text-muted-foreground">Pseudonym</p><p className="font-mono">NG-NAR-{String(inspect.narrative_id).slice(0,8).toUpperCase()}</p></div>
+                <div><p className="text-xs text-muted-foreground">Pseudonym</p><p className="font-mono">KB-NAR-{String(inspect.narrative_id).slice(0,8).toUpperCase()}</p></div>
                 <div><p className="text-xs text-muted-foreground">Language</p><p>{inspect.language}</p></div>
                 <div><p className="text-xs text-muted-foreground">Sub-county</p><p>{inspect.sub_county}</p></div>
                 <div><p className="text-xs text-muted-foreground">Age band</p><p>{inspect.age_band}</p></div>

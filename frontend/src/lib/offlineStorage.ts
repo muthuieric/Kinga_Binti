@@ -26,7 +26,7 @@ export interface SyncResult {
   lastError?: string;
 }
 
-const DB_NAME = 'NenoGuardDB';
+const DB_NAME = 'KingaBintiDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'offline_narratives';
 

@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 
 const PRINCIPLES = [
   ["Consent is mandatory", "No narrative is stored or analysed without explicit consent."],
-  ["Pseudonymisation", "Text is separated from demographics; records carry NG-NAR tokens."],
+  ["Pseudonymisation", "Text is separated from demographics; records carry KB-NAR tokens."],
   ["Right to be forgotten", "Withdrawing consent purges the linked record."],
   ["Network isolation", "Databases are bound to the local host, never exposed publicly."],
 ];

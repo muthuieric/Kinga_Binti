@@ -33,7 +33,7 @@ _JSON_DEFAULT = str(_REPO_ROOT / "backend" / "narratives_docs.json")
 
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "NenoGuard"
+    PROJECT_NAME: str = "Kinga Binti"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api"
     
@@ -41,7 +41,7 @@ class Settings(BaseModel):
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5432))
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "narratives_meta")
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "nenoguard_admin")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "kingabinti_admin")
     # No default password: credentials come from the environment / .env file.
     # If unset, the PostgreSQL connection fails and storage falls back to SQLite.
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")

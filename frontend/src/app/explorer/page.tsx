@@ -1,11 +1,11 @@
 import ExplorerClient from "./client";
 
 export const metadata = {
-  title: "Narrative explorer — NenoGuard",
+  title: "Narrative explorer — Kinga Binti",
   description:
     "Search, filter and export the consented narrative archive.",
   openGraph: {
-    title: "Narrative explorer — NenoGuard",
+    title: "Narrative explorer — Kinga Binti",
     description:
       "Search, filter and export the consented narrative archive.",
   },

@@ -62,7 +62,7 @@ export interface Translations {
 
 export const translations: Record<LanguageCode, Translations> = {
   en: {
-    appTitle: "NenoGuard",
+    appTitle: "Kinga Binti",
     subtitle: "Community Narrative Monitor • Narok & Kajiado Counties",
     navEntry: "Data Entry",
     navMap: "Spatial GIS Risk Map",
@@ -121,7 +121,7 @@ export const translations: Record<LanguageCode, Translations> = {
     batchUploadDesc: "Upload field narrative batches from Tareto Africa Trust or partner CBOs to evaluate model precision against community ground-truth annotations."
   },
   sw: {
-    appTitle: "NenoGuard",
+    appTitle: "Kinga Binti",
     subtitle: "Kifaa cha Ufuatiliaji wa Simulizi za Jamii • Kaunti za Narok na Kajiado",
     navEntry: "Ingizo la Data",
     navMap: "Ramani ya Hatari za Kijiografia",
@@ -180,7 +180,7 @@ export const translations: Record<LanguageCode, Translations> = {
     batchUploadDesc: "Pakia faili za simulizi kutoka kwa mashirika ya kijamii ili kupima usahihi wa modeli kulingana na lebo za uwandani."
   },
   maa: {
-    appTitle: "NenoGuard",
+    appTitle: "Kinga Binti",
     subtitle: "Enkiteshero e Ng'ejukisho e Koma • Kaunti e Narok o Kajiado",
     navEntry: "Aiger Ng'ejukisho",
     navMap: "Ramani e Narok & Kajiado",

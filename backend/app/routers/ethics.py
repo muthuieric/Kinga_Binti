@@ -31,7 +31,7 @@ async def get_consent_audit_ledger():
 
         ledger.append({
             "narrative_id": nid,
-            "pseudonymised_token": f"NG-NAR-{nid[:8].upper()}",
+            "pseudonymised_token": f"KB-NAR-{nid[:8].upper()}",
             "consent_given": r.get("consent_given", True),
             "consent_timestamp": ts,
             "custodian_cbo": cbo,

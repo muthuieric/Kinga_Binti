@@ -1,4 +1,4 @@
-# NenoGuard — Community Narrative Monitor
+# Kinga Binti — Community Narrative Monitor
 
 A bilingual tool for capturing and analysing community narratives to surface early warning signals of harmful traditional practices — specifically **female genital mutilation (FGM)** (*ukeketaji* / *emuratare*) and **child marriage** (*ndoa za mapema* / *esiankiki*) — across **Narok and Kajiado Counties, Kenya**.
 
@@ -40,7 +40,7 @@ Narratives can be entered in **Swahili (Kiswahili)** or **Maa**, are classified 
 - **Narrative explorer & audit archive** — Searchable repository with sub-county filters and verifiable consent records.
 - **Offline queue** — IndexedDB-backed caching with automatic background sync on reconnection.
 - **Consent withdrawal** — Consent can be withdrawn after the fact via the ethics API, which removes the associated record.
-- **Form persistence** — Narrative form data is persisted to `localStorage` (key: `nenoguard-narrative-form`). If you navigate away and return, your input is restored. Data clears automatically on successful submission.
+- **Form persistence** — Narrative form data is persisted to `localStorage` (key: `kingabinti-narrative-form`). If you navigate away and return, your input is restored. Data clears automatically on successful submission.
 
 ---
 
@@ -285,7 +285,7 @@ Once the app is open:
 
 ## 7. English → Maasai Translation (optional)
 
-NenoGuard can translate English text into Maa using a community-trained adapter:
+Kinga Binti can translate English text into Maa using a community-trained adapter:
 
 - **Base model:** `facebook/nllb-200-distilled-600M`
 - **Adapter:** [`KnoxDevelopers/English-to-Maasai-language-translation-LoRA`](https://huggingface.co/KnoxDevelopers/English-to-Maasai-language-translation-LoRA) — a PEFT LoRA (r=16, α=32), licence **cc-by-nc-4.0 (non-commercial)**
@@ -419,10 +419,10 @@ RUN_MODEL_TESTS=1 PYTHONPATH=backend/site-packages:. python3 -m backend.tests.te
 ## 10. Security & Consent
 
 - **Consent is mandatory.** No narrative is stored or analysed without `consent_given: true`.
-- **Pseudonymisation.** Narrative text is separated from metadata; records receive a pseudonymised token (`NG-NAR-XXXXXXXX`).
+- **Pseudonymisation.** Narrative text is separated from metadata; records receive a pseudonymised token (`KB-NAR-XXXXXXXX`).
 - **Consent audit ledger.** Every consent record is cryptographically fingerprinted (SHA-256) and auditable via `/api/ethics/audit-ledger`.
 - **Right to be forgotten.** Consent can be withdrawn via `/api/ethics/withdraw-consent/{narrative_id}`, which purges the record.
 - **Database binding.** PostgreSQL and MongoDB bind to `127.0.0.1` only in Docker Compose — never exposed to the network.
 - **Secrets.** `.env` is gitignored. Rotate any credential that was previously committed.
 
-# Neno-Guard
+# Kinga-Binti

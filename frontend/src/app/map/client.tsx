@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageHead } from "@/components/AppShell";
-import { SUB_COUNTIES } from "@/lib/neno";
+import { SUB_COUNTIES } from "@/lib/kingabinti";
 import { api } from "@/lib/api";
 
 const TONE = ["", "bg-risk-1", "bg-risk-2", "bg-risk-3 text-primary-foreground", "bg-risk-4 text-primary-foreground"];

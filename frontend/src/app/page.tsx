@@ -43,11 +43,11 @@ const HOW = [
 ];
 
 export const metadata = {
-  title: "NenoGuard — Listening to communities to protect girls",
+  title: "Kinga Binti — Listening to communities to protect girls",
   description:
-    "NenoGuard helps field workers in Narok and Kajiado spot early warning signs of FGM and child marriage from community stories — with consent first.",
+    "Kinga Binti helps field workers in Narok and Kajiado spot early warning signs of FGM and child marriage from community stories — with consent first.",
   openGraph: {
-    title: "NenoGuard — Listening to communities to protect girls",
+    title: "Kinga Binti — Listening to communities to protect girls",
     description:
       "Early warning signs of FGM and child marriage, from community stories in Swahili and Maa.",
   },
@@ -63,7 +63,7 @@ export default function Home() {
           <p className="text-xs uppercase tracking-[0.25em] text-accent">Narok & Kajiado, Kenya</p>
           <h1 className="mt-4 max-w-3xl text-4xl leading-tight md:text-6xl">Listening to communities, so we can protect girls sooner.</h1>
           <p className="mt-6 max-w-2xl text-lg text-ink-foreground/85">
-            People often talk about female genital mutilation and child marriage long before they happen. NenoGuard helps local workers notice those conversations early, in Swahili and Maa, and get support to the right place in time.
+            People often talk about female genital mutilation and child marriage long before they happen. Kinga Binti helps local workers notice those conversations early, in Swahili and Maa, and get support to the right place in time.
           </p>
           <a href="#roles" className="mt-8 inline-block rounded-full bg-accent px-6 py-3 font-semibold text-accent-foreground transition hover:brightness-105">Choose your role ↓</a>
         </div>

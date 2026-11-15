@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export type Role = 'collect' | 'translate' | 'review' | null;
 
-const KEY = 'nenoguard-role';
+const KEY = 'kingabinti-role';
 
 export function getRole(): Role {
   if (typeof window === 'undefined') return null;
@@ -16,10 +16,10 @@ export function useRole() {
   useEffect(() => {
     setRoleState(getRole());
     const onChange = () => setRoleState(getRole());
-    window.addEventListener('nenoguard-role-change', onChange);
+    window.addEventListener('kingabinti-role-change', onChange);
     window.addEventListener('storage', onChange);
     return () => {
-      window.removeEventListener('nenoguard-role-change', onChange);
+      window.removeEventListener('kingabinti-role-change', onChange);
       window.removeEventListener('storage', onChange);
     };
   }, []);
@@ -28,7 +28,7 @@ export function useRole() {
       if (r) window.localStorage.setItem(KEY, r);
       else window.localStorage.removeItem(KEY);
     } catch {}
-    window.dispatchEvent(new Event('nenoguard-role-change'));
+    window.dispatchEvent(new Event('kingabinti-role-change'));
   }, []);
   return { role, setRole };
 }

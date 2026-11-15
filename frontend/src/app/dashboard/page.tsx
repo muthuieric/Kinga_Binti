@@ -1,11 +1,11 @@
 import DashboardClient from "./client";
 
 export const metadata = {
-  title: "Analyst dashboard — NenoGuard",
+  title: "Analyst dashboard — Kinga Binti",
   description:
     "Early-warning overview of community narratives across Narok and Kajiado.",
   openGraph: {
-    title: "Analyst dashboard — NenoGuard",
+    title: "Analyst dashboard — Kinga Binti",
     description:
       "Early-warning overview of community narratives across Narok and Kajiado.",
   },

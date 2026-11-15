@@ -4,7 +4,7 @@
 set -e
 
 echo "================================================================="
-echo "NenoGuard — Community Narrative Monitor (Narok & Kajiado Counties)"
+echo "Kinga Binti — Community Narrative Monitor (Narok & Kajiado Counties)"
 echo "================================================================="
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -12,10 +12,14 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Auto-activate venv inside script if present
 if [ -f "${ROOT_DIR}/backend/venv/bin/activate" ]; then
   source "${ROOT_DIR}/backend/venv/bin/activate"
+elif [ -f "${ROOT_DIR}/venv/bin/activate" ]; then
+  source "${ROOT_DIR}/venv/bin/activate"
 fi
 
 if [ -x "${ROOT_DIR}/backend/venv/bin/python" ]; then 
   PYTHON_BIN="${ROOT_DIR}/backend/venv/bin/python"
+elif [ -x "${ROOT_DIR}/venv/bin/python" ]; then
+  PYTHON_BIN="${ROOT_DIR}/venv/bin/python"
 else 
   PYTHON_BIN="python3"
 fi

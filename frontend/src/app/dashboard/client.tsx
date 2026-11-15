@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHead, CatBadge } from "@/components/AppShell";
-import { SAMPLE, SUB_COUNTIES } from "@/lib/neno";
+import { SAMPLE, SUB_COUNTIES } from "@/lib/kingabinti";
 
 const STATS = [
   { label: "Narratives analysed", value: "812", sub: "+46 this week" },
@@ -42,7 +42,7 @@ export default function DashboardClient() {
           Hear the community early. Act before harm happens.
         </h1>
         <p className="mt-4 max-w-2xl text-ink-foreground/75">
-          NenoGuard classifies Swahili and Maa narratives for early signals of{" "}
+          Kinga Binti classifies Swahili and Maa narratives for early signals of{" "}
           <em>ukeketaji</em> and <em>ndoa za mapema</em> — consent-first, explainable and offline-ready.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">

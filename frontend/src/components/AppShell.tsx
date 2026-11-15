@@ -46,7 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="flex items-center gap-2.5">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">N</span>
             <span className="leading-tight">
-              <span className="block font-display text-lg">NenoGuard</span>
+              <span className="block font-display text-lg">Kinga Binti</span>
               <span className="hidden xl:block text-[11px] uppercase tracking-widest text-muted-foreground">Community Narrative Monitor</span>
             </span>
           </Link>

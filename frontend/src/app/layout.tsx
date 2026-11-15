@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import ClientLayout from "./client-layout";
 
 export const metadata: Metadata = {
-  title: "NenoGuard — Community Narrative Monitor",
+  title: "Kinga Binti — Community Narrative Monitor",
   description: "Bilingual, consent-first AI for monitoring FGM and child marriage signals in Narok and Kajiado.",
-  metadataBase: new URL("https://nenoguard.example.com"),
+  metadataBase: new URL("https://kingabinti.example.com"),
   openGraph: {
     type: "website",
-    title: "NenoGuard — Community Narrative Monitor",
+    title: "Kinga Binti — Community Narrative Monitor",
     description: "Bilingual, consent-first AI for monitoring FGM and child marriage signals in Narok and Kajiado.",
   },
   twitter: {

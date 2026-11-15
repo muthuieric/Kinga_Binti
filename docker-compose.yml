@@ -5,10 +5,10 @@ version: '3.8'
 services:
   db-postgres:
     image: postgres:16-alpine
-    container_name: nenoguard_postgres
+    container_name: kingabinti_postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-narratives_meta}
-      POSTGRES_USER: ${POSTGRES_USER:-nenoguard_admin}
+      POSTGRES_USER: ${POSTGRES_USER:-kingabinti_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set - copy .env.example to .env and set it}
     ports:
       # Bound to loopback only — never expose the database to the network.
@@ -16,14 +16,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nenoguard_admin} -d ${POSTGRES_DB:-narratives_meta}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kingabinti_admin} -d ${POSTGRES_DB:-narratives_meta}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   db-mongo:
     image: mongo:7-jammy
-    container_name: nenoguard_mongo
+    container_name: kingabinti_mongo
     environment:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-narratives_db}
     ports:
@@ -37,12 +37,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: nenoguard_api
+    container_name: kingabinti_api
     environment:
       POSTGRES_HOST: db-postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-narratives_meta}
-      POSTGRES_USER: ${POSTGRES_USER:-nenoguard_admin}
+      POSTGRES_USER: ${POSTGRES_USER:-kingabinti_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set - copy .env.example to .env and set it}
       MONGO_URI: mongodb://db-mongo:27017/narratives_db
       PORT: 8000
@@ -58,7 +58,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: nenoguard_web
+    container_name: kingabinti_web
     ports:
       - "3000:3000"
     environment:

@@ -14,7 +14,7 @@ logger = logging.getLogger("main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize hybrid SQL and NoSQL storage
-    logger.info("Initializing NenoGuard Narrative Detection API...")
+    logger.info("Initializing Kinga Binti Narrative Detection API...")
     init_databases()
     yield
     logger.info("Shutting down API services.")

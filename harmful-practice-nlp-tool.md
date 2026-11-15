@@ -1,4 +1,4 @@
-# NenoGuard — Community Narrative Monitor
+# Kinga Binti — Community Narrative Monitor
 
 ## Implementation Plan
 

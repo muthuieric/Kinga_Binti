@@ -1,5 +1,5 @@
 import { PageHead, CatBadge } from "@/components/AppShell";
-import { CONFUSION, CONF_LABELS, CATEGORY_LABEL } from "@/lib/neno";
+import { CONFUSION, CONF_LABELS, CATEGORY_LABEL } from "@/lib/kingabinti";
 
 function metrics() {
   const n = CONFUSION.length;
