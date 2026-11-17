@@ -1,4 +1,4 @@
-export type LanguageCode = 'en' | 'sw' | 'maa';
+export type LanguageCode = "en" | "sw" | "maa";
 
 export interface Translations {
   appTitle: string;
@@ -88,9 +88,11 @@ export const translations: Record<LanguageCode, Translations> = {
     subCountyLabel: "Sub-County (Narok / Kajiado)",
     sourceOrgLabel: "Source Organisation (CBO)",
     annotationLabel: "Field Ground-Truth Annotation",
-    consentConfirm: "I confirm informed consent has been obtained from the narrator to store and analyse this narrative.",
+    consentConfirm:
+      "I confirm informed consent has been obtained from the narrator to store and analyse this narrative.",
     consentModalTitle: "Ubuntu-Informed Ethical Consent Protocol",
-    consentModalBody: "In accordance with African data sovereignty and ethical AI frameworks, narratives are pseudonymised without direct personal identifiers. Narratives are co-governed with community-based organisations (such as Tareto Africa Trust). Explicit narrator consent is mandatory before processing.",
+    consentModalBody:
+      "In accordance with African data sovereignty and ethical AI frameworks, narratives are pseudonymised without direct personal identifiers. Narratives are co-governed with community-based organisations (such as Tareto Africa Trust). Explicit narrator consent is mandatory before processing.",
     submitBtn: "Submit & Analyse Narrative",
     submittingBtn: "Processing NLP Inference...",
     statusOnline: "Connected (Live Sync)",
@@ -104,7 +106,8 @@ export const translations: Record<LanguageCode, Translations> = {
     markersDetected: "Detected Cultural & Dialect Markers",
     culturalNotes: "Qualitative Cultural Context Notes",
     exportTitle: "Research Data Export & Validation",
-    exportDesc: "Download structured and unstructured research data for external validation with community-based organisation records.",
+    exportDesc:
+      "Download structured and unstructured research data for external validation with community-based organisation records.",
     downloadCsv: "Export CSV (Relational Dataset)",
     downloadJson: "Export JSON (Full Documents & Embeddings)",
     recordAudio: "Record Oral Narrative (Audio)",
@@ -113,12 +116,13 @@ export const translations: Record<LanguageCode, Translations> = {
     audioPreview: "Oral Audio Playback Preview",
     transcribingAudio: "Transcribing speech to text...",
     xaiTitle: "Explainable AI (XAI) Token Highlighter",
-    xaiExplanation: "Color-coded dialect markers extracted by the bilingual tokenizer:",
+    xaiExplanation: "Color-coded dialect markers extracted by the trilingual tokenizer:",
     cohensKappa: "Cohen's Kappa (Inter-Annotator Agreement)",
     macroF1: "Macro F1-Score",
     interAnnotatorTitle: "Qualitative Validation & Agreement Metrics",
     batchUploadTitle: "Batch CBO Dataset Upload & Validation",
-    batchUploadDesc: "Upload field narrative batches from Tareto Africa Trust or partner CBOs to evaluate model precision against community ground-truth annotations."
+    batchUploadDesc:
+      "Upload field narrative batches from Tareto Africa Trust or partner CBOs to evaluate model precision against community ground-truth annotations.",
   },
   sw: {
     appTitle: "Kinga Binti",
@@ -147,9 +151,11 @@ export const translations: Record<LanguageCode, Translations> = {
     subCountyLabel: "Kaunti Ndogo (Narok / Kajiado)",
     sourceOrgLabel: "Shirika la Jamii (CBO)",
     annotationLabel: "Lebo ya Awali ya Uwandani",
-    consentConfirm: "Nathibitisha ridhaa ya kisheria na kimaadili imepatikana kutoka kwa msimulizi ili kuhifadhi na kuchambua simulizi hii.",
+    consentConfirm:
+      "Nathibitisha ridhaa ya kisheria na kimaadili imepatikana kutoka kwa msimulizi ili kuhifadhi na kuchambua simulizi hii.",
     consentModalTitle: "Itifaki ya Maadili ya Ridhaa ya Ubuntu",
-    consentModalBody: "Kulingana na mifumo ya heshima ya data ya Kiafrika, simulizi zote zinahifadhiwa bila majina au vitambulisho vya kibinafsi. Mashirika ya kijamii kama Tareto Africa Trust yanashirikiana kulinda haki za wasimulizi. Ni lazima msimulizi atoe ridhaa kabla ya uchakataji.",
+    consentModalBody:
+      "Kulingana na mifumo ya heshima ya data ya Kiafrika, simulizi zote zinahifadhiwa bila majina au vitambulisho vya kibinafsi. Mashirika ya kijamii kama Tareto Africa Trust yanashirikiana kulinda haki za wasimulizi. Ni lazima msimulizi atoe ridhaa kabla ya uchakataji.",
     submitBtn: "Wasilisha & Chambua Simulizi",
     submittingBtn: "Inachakata Uchambuzi wa NLP...",
     statusOnline: "Imeunganishwa Mtandaoni",
@@ -163,7 +169,8 @@ export const translations: Record<LanguageCode, Translations> = {
     markersDetected: "Alama za Kiutamaduni Zilizotambuliwa",
     culturalNotes: "Muktadha wa Kiutamaduni",
     exportTitle: "Upakuaji wa Data ya Utafiti",
-    exportDesc: "Pakua data ya utafiti kwa ajili ya uthibitishaji na mashirika ya kijamii (Lengo la 2).",
+    exportDesc:
+      "Pakua data ya utafiti kwa ajili ya uthibitishaji na mashirika ya kijamii (Lengo la 2).",
     downloadCsv: "Pakua CSV (Jedwali)",
     downloadJson: "Pakua JSON (Hati Kamili)",
     recordAudio: "Rekodi Simulizi ya Sauti",
@@ -177,7 +184,8 @@ export const translations: Record<LanguageCode, Translations> = {
     macroF1: "Alama ya Macro F1",
     interAnnotatorTitle: "Uthibitishaji wa Ubora na Alama za Makubaliano (Lengo la 2)",
     batchUploadTitle: "Pakia Data Nyingi za CBO kwa Uthibitishaji",
-    batchUploadDesc: "Pakia faili za simulizi kutoka kwa mashirika ya kijamii ili kupima usahihi wa modeli kulingana na lebo za uwandani."
+    batchUploadDesc:
+      "Pakia faili za simulizi kutoka kwa mashirika ya kijamii ili kupima usahihi wa modeli kulingana na lebo za uwandani.",
   },
   maa: {
     appTitle: "Kinga Binti",
@@ -208,7 +216,8 @@ export const translations: Record<LanguageCode, Translations> = {
     annotationLabel: "Emuratare / Esiankiki",
     consentConfirm: "Etejo olopeny ng'ejukisho nchere kintare ena bae to rishata.",
     consentModalTitle: "Esero e Ng'ejukisho e Ubuntu",
-    consentModalBody: "Eing'uaa ng'ejukisho to siadi e ng'ejukisho enye metii enkarna e tung'ani. Eshirika e Tareto Africa Trust ketii ena ng'eno peeto.",
+    consentModalBody:
+      "Eing'uaa ng'ejukisho to siadi e ng'ejukisho enye metii enkarna e tung'ani. Eshirika e Tareto Africa Trust ketii ena ng'eno peeto.",
     submitBtn: "Aiger Ng'ejukisho & Ing'or",
     submittingBtn: "Eing'or NLP...",
     statusOnline: "Ketii Intanet",
@@ -236,6 +245,6 @@ export const translations: Record<LanguageCode, Translations> = {
     macroF1: "Macro F1",
     interAnnotatorTitle: "Enkituroto e Utafiti o CBO (Lengo 2)",
     batchUploadTitle: "Awol Ng'ejukisho Kumok e Tareto Africa",
-    batchUploadDesc: "Iteje data e shule peeing'or enkiteshero e kompiuta."
-  }
+    batchUploadDesc: "Iteje data e shule peeing'or enkiteshero e kompiuta.",
+  },
 };

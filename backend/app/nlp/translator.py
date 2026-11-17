@@ -46,6 +46,8 @@ class MaasaiTranslator:
         dtype: Optional[str] = None,
         max_new_tokens: Optional[int] = None,
         cache_dir: Optional[str] = None,
+        num_beams: Optional[int] = None,
+        cpu_threads: Optional[int] = None,
     ):
         self.base_model = base_model or settings.TRANSLATION_BASE_MODEL
         self.adapter_model = adapter_model or settings.TRANSLATION_ADAPTER_MODEL
@@ -54,6 +56,8 @@ class MaasaiTranslator:
         self.dtype = dtype or settings.TRANSLATION_DTYPE
         self.max_new_tokens = max_new_tokens or settings.TRANSLATION_MAX_NEW_TOKENS
         self.cache_dir = cache_dir or settings.TRANSLATION_CACHE_DIR
+        self.num_beams = max(1, int(num_beams if num_beams is not None else getattr(settings, "TRANSLATION_NUM_BEAMS", 1)))
+        self.cpu_threads = max(1, int(cpu_threads if cpu_threads is not None else getattr(settings, "TRANSLATION_CPU_THREADS", 2)))
 
         self.tokenizer = None
         self.model = None
@@ -95,13 +99,35 @@ class MaasaiTranslator:
             ) from exc
 
         os.makedirs(self.cache_dir, exist_ok=True)
-        logger.info("Loading NLLB base model '%s' ...", self.base_model)
+
+        # Restrict CPU threads before model instantiation so PyTorch never spikes
+        # 100% on all cores or starves the OS window manager / UI loop.
+        if not torch.cuda.is_available():
+            n_threads = min(self.cpu_threads, max(1, os.cpu_count() or 1))
+            try:
+                torch.set_num_threads(n_threads)
+            except Exception:
+                pass
+
+        # Check if model is already downloaded locally. If so, enforce local_files_only=True
+        # and HF_HUB_OFFLINE=1 to prevent PEFT/Hugging Face Hub from attempting network
+        # requests, checking remote file_exists metadata, and retry loops that freeze the app.
+        base_dir_name = "models--" + self.base_model.replace("/", "--")
+        adapter_dir_name = "models--" + self.adapter_model.replace("/", "--")
+        local_base = os.path.isdir(os.path.join(self.cache_dir, base_dir_name, "snapshots"))
+        local_adapter = os.path.isdir(os.path.join(self.cache_dir, adapter_dir_name, "snapshots"))
+
+        if local_base and local_adapter:
+            os.environ["HF_HUB_OFFLINE"] = "1"
+
+        logger.info("Loading NLLB base model '%s' (local_files_only=%s)...", self.base_model, local_base)
 
         tokenizer = AutoTokenizer.from_pretrained(
             self.base_model,
             cache_dir=self.cache_dir,
             src_lang=self.src_lang,
             tgt_lang=self.tgt_lang,
+            local_files_only=local_base,
         )
 
         model = AutoModelForSeq2SeqLM.from_pretrained(
@@ -110,27 +136,51 @@ class MaasaiTranslator:
             torch_dtype=self._resolve_dtype(),
             # Streams weights into RAM to avoid a second full copy on low-RAM hosts.
             low_cpu_mem_usage=True,
+            local_files_only=local_base,
         )
 
         # Fix vocabulary size mismatch from KnoxDevelopers adapter training
         model.resize_token_embeddings(256205)
 
-        logger.info("Applying LoRA adapter '%s' ...", self.adapter_model)
+        adapter_load_path = self.adapter_model
+        if local_adapter:
+            snapshots_dir = os.path.join(self.cache_dir, adapter_dir_name, "snapshots")
+            try:
+                snapshots = [
+                    os.path.join(snapshots_dir, s)
+                    for s in os.listdir(snapshots_dir)
+                    if os.path.isdir(os.path.join(snapshots_dir, s))
+                ]
+                if snapshots:
+                    # Pass the exact local filesystem path to PeftModel so it completely
+                    # skips remote Hugging Face API checks and connection timeouts.
+                    adapter_load_path = snapshots[0]
+            except Exception:
+                pass
+
+        logger.info("Applying LoRA adapter '%s'...", adapter_load_path)
         model = PeftModel.from_pretrained(
-            model, self.adapter_model, cache_dir=self.cache_dir
+            model,
+            adapter_load_path,
+            cache_dir=self.cache_dir,
+            local_files_only=local_adapter,
         )
 
         model.eval()
-        # Restrict threads a little on small machines to avoid thrashing.
         if not torch.cuda.is_available():
-            torch.set_num_threads(max(1, (os.cpu_count() or 4) // 2))
+            n_threads = min(self.cpu_threads, max(1, os.cpu_count() or 1))
+            try:
+                torch.set_num_threads(n_threads)
+            except Exception:
+                pass
 
         self.tokenizer = tokenizer
         self.model = model
         self._loaded = True
         logger.info(
-            "Translator ready (%s + adapter %s, dtype=%s)",
-            self.base_model, self.adapter_model, self.dtype,
+            "Translator ready (%s + adapter %s, dtype=%s, beams=%s, cpu_threads=%s)",
+            self.base_model, self.adapter_model, self.dtype, self.num_beams,
+            min(self.cpu_threads, max(1, os.cpu_count() or 1)) if not torch.cuda.is_available() else "cuda",
         )
         return self
 
@@ -168,14 +218,19 @@ class MaasaiTranslator:
         # forced_bos_token_id is what actually makes NLLB generate the target language.
         forced_bos_token_id = tokenizer.convert_tokens_to_ids(self.tgt_lang)
 
-        with torch.no_grad():
-            generated = model.generate(
-                **encoded,
-                forced_bos_token_id=forced_bos_token_id,
-                max_new_tokens=max_tokens,
-                num_beams=4,
-                no_repeat_ngram_size=3,
-            )
+        gen_kwargs = {
+            **encoded,
+            "forced_bos_token_id": forced_bos_token_id,
+            "max_new_tokens": max_tokens,
+            "num_beams": self.num_beams,
+            "no_repeat_ngram_size": 3,
+        }
+        # Greedy decoding is far lighter on CPU than beam search.
+        if self.num_beams <= 1:
+            gen_kwargs["do_sample"] = False
+
+        with torch.inference_mode():
+            generated = model.generate(**gen_kwargs)
 
         translation = tokenizer.batch_decode(generated, skip_special_tokens=True)[0]
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageHead } from "@/components/AppShell";
-import { api } from "@/lib/api";
+import { api, type EthicsLedgerResponse } from "@/lib/api";
 
 const PRINCIPLES = [
   ["Consent is mandatory", "No narrative is stored or analysed without explicit consent."],
@@ -12,10 +12,15 @@ const PRINCIPLES = [
 ];
 
 export default function EthicsClient() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<EthicsLedgerResponse[]>([]);
   const [purged, setPurged] = useState<string[]>([]);
   useEffect(() => {
-    api.ethicsLedger().then((d) => setRows(d?.audit_ledger || [])).catch(() => {});
+    api
+      .ethicsLedger()
+      .then((d) => setRows(d))
+      .catch(() => {
+        // ignore fetch errors
+      });
   }, []);
   return (
     <>
@@ -41,14 +46,15 @@ export default function EthicsClient() {
             <div className="min-w-0 flex-1">
               <p className="font-mono text-sm break-all">{n.pseudonymised_token}</p>
               <p className="font-mono text-xs text-muted-foreground break-all">
-                sha256 {String(n.cryptographic_hash).slice(0,16)}… · consent {n.consent_timestamp} · {n.custodian_cbo}
+                sha256 {String(n.cryptographic_hash).slice(0, 16)}… · consent {n.consent_timestamp}{" "}
+                · {n.custodian_cbo}
               </p>
             </div>
             <button
               onClick={() => {
                 api.withdrawConsent(n.narrative_id).catch(() => {});
                 setRows((r) => r.filter((x) => x.narrative_id !== n.narrative_id));
-                setPurged((p) => [n.pseudonymised_token, ...p]);
+                setPurged((p) => [n.pseudonymised_token || n.narrative_id, ...p]);
               }}
               className="rounded-full border border-destructive/40 px-4 py-1.5 text-sm text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
             >
@@ -57,10 +63,11 @@ export default function EthicsClient() {
           </div>
         ))}
         {purged.map((id) => (
-          <div key={id} className="flex items-center gap-4 bg-muted/50 p-4 text-sm text-muted-foreground">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">
-              ∅
-            </span>
+          <div
+            key={id}
+            className="flex items-center gap-4 bg-muted/50 p-4 text-sm text-muted-foreground"
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">∅</span>
             <span className="font-mono">{id}</span> — consent withdrawn, record purged
           </div>
         ))}

@@ -65,7 +65,7 @@ CREATE INDEX IF NOT EXISTS idx_source_org ON narrative_metadata(source_org);
     "None": 0.009
   },
   "keywords_detected": ["enkipaata", "kutahiri", "emuratare"],
-  "model_version": "v1.0.0-bilingual",
+  "model_version": "v1.0.0-trilingual",
   "created_at": "ISO-8601-timestamp"
 }
 ```

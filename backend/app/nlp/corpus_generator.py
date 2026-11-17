@@ -101,7 +101,7 @@ AGE_BANDS = ["Under 18", "18-25", "26-40", "Over 40"]
 GENDERS = ["Female", "Female", "Female", "Male"]  # 75% female narrators per thesis demographic profile
 
 def generate_benchmark_corpus(count: int = 50) -> List[Dict[str, Any]]:
-    """Generates authentic bilingual research narratives with demographic metadata."""
+    """Generates authentic trilingual research narratives with demographic metadata."""
     corpus = []
     for _ in range(count):
         is_maa = random.choice([True, False])

@@ -2,7 +2,7 @@ import hashlib
 import json
 from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
-from ..database import get_all_records, _use_sqlite_fallback, _use_json_fallback, _mongo_client
+from ..database import get_all_records, _use_sqlite_fallback, _use_json_fallback, _mongo_client, _ensure_initialized, _invalidate_records_cache
 from ..config import settings
 import sqlite3
 import os
@@ -56,6 +56,7 @@ async def withdraw_consent(narrative_id: str):
     Right-to-be-forgotten / Consent revocation endpoint.
     Purges or anonymizes narrative upon community or narrator request.
     """
+    _ensure_initialized()
     # 1. Update in SQL
     if not _use_sqlite_fallback:
         try:
@@ -91,6 +92,7 @@ async def withdraw_consent(narrative_id: str):
             with open(settings.JSON_DOCS_PATH, "w", encoding="utf-8") as f:
                 json.dump(docs, f, indent=2, ensure_ascii=False)
 
+    _invalidate_records_cache()
     return {
         "status": "revoked",
         "message": f"Consent revoked. Narrative {narrative_id} successfully purged from repository pursuant to communal data sovereignty rules."

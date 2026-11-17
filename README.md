@@ -1,8 +1,8 @@
 # Kinga Binti — Community Narrative Monitor
 
-A bilingual tool for capturing and analysing community narratives to surface early warning signals of harmful traditional practices — specifically **female genital mutilation (FGM)** (*ukeketaji* / *emuratare*) and **child marriage** (*ndoa za mapema* / *esiankiki*) — across **Narok and Kajiado Counties, Kenya**.
+A trilingual tool for capturing and analysing community narratives to surface early warning signals of harmful traditional practices — specifically **female genital mutilation (FGM)** (*ukeketaji* / *emuratare*) and **child marriage** (*ndoa za mapema* / *esiankiki*) — across **Narok and Kajiado Counties, Kenya**.
 
-Narratives can be entered in **Swahili (Kiswahili)** or **Maa**, are classified on the fly by a bilingual NLP engine, and are stored with a verifiable consent trail.
+Narratives can be entered in **English**, **Swahili (Kiswahili)** or **Maa**, are classified on the fly by a trilingual NLP engine, and are stored with a verifiable consent trail.
 
 ---
 
@@ -23,9 +23,9 @@ Narratives can be entered in **Swahili (Kiswahili)** or **Maa**, are classified 
 
 ## 1. How It Works
 
-1. **Capture** — A field worker records a narrative through the web form. They pick the narrator's language (Swahili or Maa), age band, gender, sub-county, partner organisation, and a practice label, and confirm that the narrator has given informed consent. Audio capture with in-browser recording and transcription preview is available for narrators who speak rather than type.
+1. **Capture** — A field worker records a narrative through the web form. They pick the narrator's language (English, Swahili or Maa), age band, gender, sub-county, partner organisation, and a practice label, and confirm that the narrator has given informed consent. Audio capture with in-browser recording and transcription preview is available for narrators who speak rather than type.
 2. **Consent gate** — Submissions without explicit consent (`consent_given: false`) are rejected immediately with HTTP 400. Nothing is stored or analysed without it.
-3. **Bilingual NLP analysis** — The backend runs a multilingual classifier with domain-specific lexicons for Swahili and Maa dialect terms. It returns a predicted category (FGM / Child Marriage / Other harmful norm / None), a confidence score with per-class breakdown, detected cultural markers, and a discourse stance (e.g. advocacy vs. descriptive).
+3. **Trilingual NLP analysis** — The backend runs a multilingual classifier with domain-specific lexicons for English, Swahili and Maa dialect terms. It returns a predicted category (FGM / Child Marriage / Other harmful norm / None), a confidence score with per-class breakdown, detected cultural markers, and a discourse stance (e.g. advocacy vs. descriptive).
 4. **Explainable result** — The frontend highlights detected terms directly on the narrative text with weights and translations, so the reasoning behind a classification is visible.
 5. **Review & validate** — Predictions can be compared against human ground-truth annotations. The validation view reports agreement (Cohen's Kappa), Macro F1, and a confusion matrix, and accepts batch uploads of annotated records.
 6. **Explore & export** — All narratives are searchable and filterable (by language, sub-county, category) in an archive view, mappable as a geographic heatmap of risk and practice prevalence, and exportable as CSV or JSON for offline review.
@@ -74,7 +74,7 @@ All desktop and mobile navigation links (Collect Data, Translate, Review, Map, V
 ### Submitting a narrative (Collect Data)
 
 1. Go to `http://localhost:3000/collect`.
-2. Enter the narrative text in Swahili or Maa.
+2. Enter the narrative text in English, Swahili or Maa.
 3. Select language, age band, gender, sub-county, source organisation, and practice label.
 4. Check the informed-consent box (mandatory — submissions without consent are rejected).
 5. Submit. The NLP analysis result appears immediately below the form.
@@ -101,7 +101,7 @@ Go to `http://localhost:3000/validation` to see real-time agreement metrics acro
 
 - **Frontend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Lucide icons.
 - **Backend:** FastAPI (Python 3.12), Pydantic v2, Uvicorn async ASGI server.
-- **NLP engine:** Multilingual classification with domain-specific morphological lexicons for Swahili and Maa.
+- **NLP engine:** Multilingual classification with domain-specific morphological lexicons for English, Swahili and Maa.
 - **Hybrid storage:**
   - **PostgreSQL (SQL)** — Relational metadata (`age_band`, `gender`, `sub_county`, `source_org`, `consent_given`, `timestamp`). Falls back to SQLite if PostgreSQL is unavailable.
   - **MongoDB (NoSQL)** — Narrative text, model predictions, confidence scores, detected dialect markers, discourse stance, cultural context notes. Falls back to local JSON if MongoDB is unavailable.
@@ -127,8 +127,8 @@ Go to `http://localhost:3000/validation` to see real-time agreement metrics acro
 │   │   ├── database.py             # Hybrid SQL + NoSQL repository with fallback
 │   │   ├── schemas.py              # Pydantic models for submissions and responses
 │   │   ├── nlp/
-│   │   │   ├── lexicon.py          # Swahili & Maa cultural markers and vocabulary
-│   │   │   ├── classifier.py       # Bilingual classification & stance engine
+│   │   │   ├── lexicon.py          # English, Swahili & Maa cultural markers and vocabulary
+│   │   │   ├── classifier.py       # Trilingual classification & stance engine
 │   │   │   └── corpus_generator.py # Synthetic corpus generation
 │   │   └── routers/
 │   │       ├── narratives.py       # Submit, list, batch import, validation, heatmap

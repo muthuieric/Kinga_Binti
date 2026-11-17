@@ -1,8 +1,67 @@
 """
 Domain-specific Lexicon for Harmful Practice Narratives in Narok and Kajiado Counties, Kenya.
-Covers Maa (Southern Nilotic) and Swahili (Bantu/Niger-Congo) discourse markers
+Covers English, Maa (Southern Nilotic) and Swahili (Bantu/Niger-Congo) discourse markers
 for FGM (Emuratare e nkan) and Child Marriage (Esiankiki / Ndoa za mapema).
 """
+
+ENGLISH_LEXICON = {
+    "fgm": [
+        {"term": "female genital mutilation", "meaning": "FGM - female genital mutilation", "weight": 0.98},
+        {"term": "fgm", "meaning": "Female genital mutilation abbreviation", "weight": 0.95},
+        {"term": "female circumcision", "meaning": "Euphemism for FGM", "weight": 0.96},
+        {"term": "cutting", "meaning": "Colloquial term for FGM procedure", "weight": 0.85},
+        {"term": "the cut", "meaning": "Community reference to FGM rite", "weight": 0.88},
+        {"term": "circumcision ceremony", "meaning": "Ceremonial cutting of girls", "weight": 0.92},
+        {"term": "initiation rite", "meaning": "Traditional passage involving cutting", "weight": 0.80},
+        {"term": "traditional cutter", "meaning": "Person who performs FGM", "weight": 0.90},
+        {"term": "excision", "meaning": "Type II FGM clinical term", "weight": 0.85},
+        {"term": "infibulation", "meaning": "Type III FGM clinical term", "weight": 0.85},
+        {"term": "type one fgm", "meaning": "Clitoridectomy - partial/total removal of clitoris", "weight": 0.90},
+        {"term": "type two fgm", "meaning": "Excision - removal of clitoris and labia minora", "weight": 0.90},
+        {"term": "type three fgm", "meaning": "Infibulation - narrowing of vaginal opening", "weight": 0.90},
+        {"term": "passage ceremony", "meaning": "Rite of passage involving cutting", "weight": 0.78},
+        {"term": "cut girl", "meaning": "Girl who has undergone FGM", "weight": 0.86},
+    ],
+    "child_marriage": [
+        {"term": "child marriage", "meaning": "Marriage before age 18", "weight": 0.98},
+        {"term": "early marriage", "meaning": "Marriage at young age", "weight": 0.96},
+        {"term": "forced marriage", "meaning": "Marriage without consent", "weight": 0.95},
+        {"term": "bride price", "meaning": "Dowry payment for girl", "weight": 0.85},
+        {"term": "dowry", "meaning": "Payment for bride", "weight": 0.80},
+        {"term": "betrothal", "meaning": "Formal engagement of child", "weight": 0.90},
+        {"term": "girl bride", "meaning": "Young girl married off", "weight": 0.92},
+        {"term": "marry off", "meaning": "Parents arranging daughter's marriage", "weight": 0.88},
+        {"term": "school dropout for marriage", "meaning": "Leaving education for marriage", "weight": 0.85},
+        {"term": "teenage bride", "meaning": "Adolescent girl in marriage", "weight": 0.88},
+        {"term": "underage marriage", "meaning": "Marriage below legal age", "weight": 0.96},
+        {"term": "arranged marriage", "meaning": "Marriage arranged by family without girl's consent", "weight": 0.82},
+        {"term": "runaway bride", "meaning": "Girl fleeing arranged marriage", "weight": 0.70},
+        {"term": "eloped", "meaning": "Secret marriage arranged by family", "weight": 0.72},
+        {"term": "taken as wife", "meaning": "Girl given in marriage", "weight": 0.80},
+    ],
+    "advocacy_challenge": [
+        {"term": "stop fgm", "meaning": "Call to end female genital mutilation", "weight": 0.95},
+        {"term": "end child marriage", "meaning": "Call to end early marriage", "weight": 0.95},
+        {"term": "girls education", "meaning": "Advocacy for girls schooling", "weight": 0.90},
+        {"term": "children rights", "meaning": "Child rights advocacy", "weight": 0.92},
+        {"term": "protect girls", "meaning": "Protection from harmful practices", "weight": 0.93},
+        {"term": "say no to fgm", "meaning": "Anti-FGM slogan", "weight": 0.90},
+        {"term": "education over marriage", "meaning": "Prioritize schooling", "weight": 0.88},
+        {"term": "law against fgm", "meaning": "Legal prohibition reference", "weight": 0.85},
+        {"term": "rescue", "meaning": "Rescuing girls from cutting/marriage", "weight": 0.88},
+        {"term": "harmful practice", "meaning": "Term for FGM/child marriage", "weight": 0.80},
+        {"term": "bodily integrity", "meaning": "Right to physical autonomy", "weight": 0.82},
+        {"term": "gender equality", "meaning": "Equal rights advocacy", "weight": 0.75},
+        {"term": "girl child rights", "meaning": "Rights of the female child", "weight": 0.90},
+        {"term": "community health worker", "meaning": "Health advocate against FGM", "weight": 0.70},
+        {"term": "anti-fgm campaign", "meaning": "Organised drive against FGM", "weight": 0.92},
+        {"term": "alternative rite of passage", "meaning": "Non-cutting ceremony replacing FGM", "weight": 0.88},
+        {"term": "abandon the cut", "meaning": "Community pledge to end FGM", "weight": 0.90},
+        {"term": "girl empowerment", "meaning": "Strengthening girls' agency", "weight": 0.80},
+        {"term": "keep girls in school", "meaning": "Education retention advocacy", "weight": 0.85},
+        {"term": "report fgm", "meaning": "Urging reporting of FGM cases to authorities", "weight": 0.88},
+    ]
+}
 
 MAA_LEXICON = {
     "fgm": [
@@ -15,6 +74,8 @@ MAA_LEXICON = {
         {"term": "esiyan", "meaning": "Initiation ceremony / bridal passage", "weight": 0.70},
         {"term": "olamal", "meaning": "Delegation / customary communal gathering", "weight": 0.55},
         {"term": "ilpiron", "meaning": "Godfather / elder age-set advisors in initiation", "weight": 0.65},
+        {"term": "enkitoyioni", "meaning": "Act of girl's initiation cut", "weight": 0.90},
+        {"term": "enturuj", "meaning": "Healing / seclusion period after cutting", "weight": 0.72},
     ],
     "child_marriage": [
         {"term": "esiankiki", "meaning": "Young bride / betrothed girl", "weight": 0.95},
@@ -23,6 +84,8 @@ MAA_LEXICON = {
         {"term": "enkishomi", "meaning": "Gate / clan settlement through girl exchange", "weight": 0.75},
         {"term": "inkishu", "meaning": "Cattle dowry / bride wealth for marriage", "weight": 0.70},
         {"term": "esitaany", "meaning": "Early betrothal negotiations for young girls", "weight": 0.88},
+        {"term": "enkang", "meaning": "Homestead / location where girl is taken for marriage", "weight": 0.55},
+        {"term": "enkiama", "meaning": "Council of elders deciding girl's marriage", "weight": 0.65},
     ],
     "advocacy_challenge": [
         {"term": "meitasheyie", "meaning": "Stop / do not continue the custom", "weight": 0.85},
@@ -30,6 +93,8 @@ MAA_LEXICON = {
         {"term": "enkishon", "meaning": "Life / bodily integrity and health", "weight": 0.60},
         {"term": "tasheyie", "meaning": "Halt the practice", "weight": 0.75},
         {"term": "aishoo", "meaning": "Give girls opportunities / education rights", "weight": 0.70},
+        {"term": "serian", "meaning": "Peace / security for girls", "weight": 0.65},
+        {"term": "siret", "meaning": "Rights / entitlement", "weight": 0.68},
     ]
 }
 
@@ -43,6 +108,9 @@ SWAHILI_LEXICON = {
         {"term": "mila ya tohara", "meaning": "Circumcision custom", "weight": 0.88},
         {"term": "kuvuka ungo", "meaning": "Transition to womanhood through cut", "weight": 0.80},
         {"term": "sherehe ya ukeketaji", "meaning": "FGM ceremony celebration", "weight": 0.92},
+        {"term": "kutahiriwa", "meaning": "To be circumcised (female)", "weight": 0.90},
+        {"term": "kipindi cha kupona", "meaning": "Recovery period after cutting", "weight": 0.72},
+        {"term": "desturi ya kukata", "meaning": "Custom of cutting girls", "weight": 0.88},
     ],
     "child_marriage": [
         {"term": "ndoa za mapema", "meaning": "Early marriage", "weight": 0.96},
@@ -52,6 +120,9 @@ SWAHILI_LEXICON = {
         {"term": "mahali", "meaning": "Bride price / dowry payment", "weight": 0.70},
         {"term": "mchumba mtoto", "meaning": "Child betrothed", "weight": 0.90},
         {"term": "kukatisha masomo", "meaning": "Dropping out of school for marriage", "weight": 0.85},
+        {"term": "mahari", "meaning": "Bride price in Swahili context", "weight": 0.78},
+        {"term": "kupewa mume", "meaning": "To be given to a husband (girl)", "weight": 0.88},
+        {"term": "harusi ya mtoto", "meaning": "Child wedding ceremony", "weight": 0.92},
     ],
     "advocacy_challenge": [
         {"term": "pinga", "meaning": "Oppose / resist practice", "weight": 0.85},
@@ -61,6 +132,11 @@ SWAHILI_LEXICON = {
         {"term": "kuokoa", "meaning": "Rescue from cutting or forced marriage", "weight": 0.88},
         {"term": "madhara", "meaning": "Harm / negative health complications", "weight": 0.82},
         {"term": "haki ya mtoto wa kike", "meaning": "Rights of the girl child", "weight": 0.92},
+        {"term": "acha ukeketaji", "meaning": "Stop FGM", "weight": 0.90},
+        {"term": "linda wasichana", "meaning": "Protect girls from harmful practices", "weight": 0.88},
+        {"term": "jinsia sawa", "meaning": "Gender equality advocacy", "weight": 0.78},
+        {"term": "ripoti ukeketaji", "meaning": "Report FGM to authorities", "weight": 0.85},
+        {"term": "msichana shuleni", "meaning": "Keep the girl in school", "weight": 0.83},
     ]
 }
 

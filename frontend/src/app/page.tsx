@@ -28,10 +28,7 @@ const ROLES = [
 ] as const;
 
 const HOW = [
-  [
-    "Listen",
-    "A field worker collects a story from the community. Only after the person agrees.",
-  ],
+  ["Listen", "A field worker collects a story from the community. Only after the person agrees."],
   [
     "Understand",
     "The app looks for words and phrases linked to cutting (ukeketaji) or early marriage (ndoa za mapema), and shows exactly why.",
@@ -57,15 +54,30 @@ export default function Home() {
   return (
     <>
       <section className="relative -mt-2 mb-14 overflow-hidden rounded-3xl">
-        <img src="/hero-savanna.jpg" alt="Maasai people walking across the savanna at sunset near Narok" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src="/hero-savanna.jpg"
+          alt="Maasai people walking across the savanna at sunset near Narok"
+          width={1920}
+          height={1088}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/70 to-ink/30" />
         <div className="relative px-8 py-16 text-ink-foreground md:px-14 md:py-24">
           <p className="text-xs uppercase tracking-[0.25em] text-accent">Narok & Kajiado, Kenya</p>
-          <h1 className="mt-4 max-w-3xl text-4xl leading-tight md:text-6xl">Listening to communities, so we can protect girls sooner.</h1>
+          <h1 className="mt-4 max-w-3xl text-4xl leading-tight md:text-6xl">
+            Listening to communities, so we can protect girls sooner.
+          </h1>
           <p className="mt-6 max-w-2xl text-lg text-ink-foreground/85">
-            People often talk about female genital mutilation and child marriage long before they happen. Kinga Binti helps local workers notice those conversations early, in Swahili and Maa, and get support to the right place in time.
+            People often talk about female genital mutilation and child marriage long before they
+            happen. Kinga Binti helps local workers notice those conversations early, in Swahili and
+            Maa, and get support to the right place in time.
           </p>
-          <a href="#roles" className="mt-8 inline-block rounded-full bg-accent px-6 py-3 font-semibold text-accent-foreground transition hover:brightness-105">Choose your role ↓</a>
+          <a
+            href="#roles"
+            className="mt-8 inline-block rounded-full bg-accent px-6 py-3 font-semibold text-accent-foreground transition hover:brightness-105"
+          >
+            Choose your role ↓
+          </a>
         </div>
         <div className="shuka absolute inset-x-0 bottom-0 h-2" />
       </section>
@@ -83,9 +95,7 @@ export default function Home() {
       </section>
 
       <section id="roles" className="mb-16 scroll-mt-24">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-          Get started
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Get started</p>
         <h2 className="mt-1 mb-8 text-4xl">Who are you today?</h2>
         <div className="grid gap-5 md:grid-cols-3">
           {ROLES.map((r) => (
@@ -98,9 +108,7 @@ export default function Home() {
               <p className="mt-3 font-display text-3xl">{r.title}</p>
               <p className="mt-1 text-sm font-medium text-muted-foreground">{r.who}</p>
               <p className="mt-4 flex-1 text-muted-foreground">{r.desc}</p>
-              <span
-                className="mt-6 inline-flex w-fit rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition group-hover:brightness-110"
-              >
+              <span className="mt-6 inline-flex w-fit rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition group-hover:brightness-110">
                 {r.cta} →
               </span>
             </Link>
@@ -112,7 +120,8 @@ export default function Home() {
         <div>
           <p className="font-display text-2xl">Built on trust</p>
           <p className="mt-2 text-muted-foreground">
-            These stories are sensitive. Nothing is saved without permission, names are never stored next to stories, and anyone can ask for their story to be deleted at any time.
+            These stories are sensitive. Nothing is saved without permission, names are never stored
+            next to stories, and anyone can ask for their story to be deleted at any time.
           </p>
         </div>
         <ul className="space-y-2 text-sm">
@@ -123,7 +132,8 @@ export default function Home() {
             "A helper for people, never a replacement",
           ].map((x) => (
             <li key={x} className="flex gap-3 rounded-xl bg-muted px-4 py-3">
-              <span className="text-success">✓</span>{x}
+              <span className="text-success">✓</span>
+              {x}
             </li>
           ))}
         </ul>

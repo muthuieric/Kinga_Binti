@@ -2,12 +2,10 @@ import MapClient from "./client";
 
 export const metadata = {
   title: "Spatial risk map — Kinga Binti",
-  description:
-    "Risk and practice prevalence across the 11 sub-counties of Narok and Kajiado.",
+  description: "Risk and practice prevalence across the 11 sub-counties of Narok and Kajiado.",
   openGraph: {
     title: "Spatial risk map — Kinga Binti",
-    description:
-      "Risk and practice prevalence across the 11 sub-counties of Narok and Kajiado.",
+    description: "Risk and practice prevalence across the 11 sub-counties of Narok and Kajiado.",
   },
 };
 

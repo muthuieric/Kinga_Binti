@@ -1,7 +1,7 @@
 export const API_BASE =
   process.env["NEXT_PUBLIC_API_URL"]?.replace(/\/$/, "") || "http://localhost:8000";
 
-export async function apiFetch<T = any>(path: string, init?: RequestInit): Promise<T> {
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
@@ -16,33 +16,115 @@ export async function apiFetch<T = any>(path: string, init?: RequestInit): Promi
       if (typeof body?.detail === "string") detail = body.detail;
       else if (Array.isArray(body?.detail))
         detail = body.detail
-          .map((d: any) => `${d.loc?.[d.loc.length - 1] ?? "field"}: ${d.msg}`)
+          .map((d: unknown) => {
+            const obj = d as Record<string, unknown>;
+            const loc = obj["loc"] as unknown[] | undefined;
+            return `${loc?.[loc.length - 1] ?? "field"}: ${obj["msg"]}`;
+          })
           .join("; ");
       else detail = JSON.stringify(body);
-    } catch {}
+    } catch {
+      // ignore parse errors
+    }
     throw new Error(detail);
   }
   return res.json();
 }
 
-export type BackendAnalysis = {
+export interface BackendAnalysis {
   prediction_label: string;
   prediction_score: number;
   confidence_breakdown: Record<string, number>;
-  detected_markers: { term: string; category: string; meaning?: string; weight?: number; start_pos?: number }[];
+  detected_markers: {
+    term: string;
+    category: string;
+    meaning?: string;
+    weight?: number;
+    start_pos?: number;
+  }[];
   discourse_stance: string;
   cultural_context_notes: string;
-};
+}
 
-export type BackendSubmitResponse = {
+export interface BackendSubmitResponse {
   message: string;
   narrative_id: string;
   analysis: BackendAnalysis;
-};
+}
+
+export interface HealthResponse {
+  status: string;
+  version: string;
+  timestamp: string;
+}
+
+export interface NarrativeItem {
+  id: string;
+  text: string;
+  language: string;
+  category: string;
+  sub_county: string;
+  age_band: string;
+  gender: string;
+  source_org: string;
+  timestamp: string;
+  consent_given: boolean;
+  confidence?: number;
+  narrative_id?: string;
+  narrative?: string;
+  label?: string;
+  prediction_label?: string;
+  prediction_score?: number;
+  date_collected?: string;
+  discourse_stance?: string;
+  cultural_context_notes?: string;
+  detected_markers?: {
+    term: string;
+    category: string;
+    meaning?: string;
+    weight?: number;
+    start_pos?: number;
+  }[];
+}
+
+export interface StatsResponse {
+  total_narratives: number;
+  by_language: Record<string, number>;
+  by_category: Record<string, number>;
+  by_sub_county: Record<string, number>;
+  by_stance: Record<string, number>;
+}
+
+export interface EthicsLedgerResponse {
+  id: string;
+  narrative_id: string;
+  consent_given: boolean;
+  consent_hash: string;
+  timestamp: string;
+  withdrawn: boolean;
+  pseudonymised_token?: string;
+  cryptographic_hash?: string;
+  consent_timestamp?: string;
+  custodian_cbo?: string;
+}
+
+export interface TranslateStatusResponse {
+  available: boolean;
+  model?: string;
+  adapter?: string;
+}
+
+export interface TranslateResponse {
+  out: string;
+  translated_text?: string;
+  translation?: string;
+  model: string;
+  adapter: string;
+}
 
 export const api = {
-  health: () => apiFetch<any>("/api/health"),
-  submit: (body: any) =>
+  health: () => apiFetch<HealthResponse>("/api/health"),
+  submit: (body: Record<string, unknown>) =>
     apiFetch<BackendSubmitResponse>("/api/narratives/submit", {
       method: "POST",
       body: JSON.stringify(body),
@@ -54,17 +136,17 @@ export const api = {
           Object.entries(params).filter(([, v]) => v !== undefined && v !== ""),
         ).toString()
       : "";
-    return apiFetch<any[]>(`/api/narratives${qs}`);
+    return apiFetch<NarrativeItem[]>(`/api/narratives${qs}`);
   },
-  stats: () => apiFetch<any>("/api/stats"),
+  stats: () => apiFetch<StatsResponse>("/api/stats"),
   exportUrl: (format: "json" | "csv") => `${API_BASE}/api/export?format=${format}`,
-  ethicsLedger: () => apiFetch<any>("/api/ethics/audit-ledger"),
+  ethicsLedger: () => apiFetch<EthicsLedgerResponse[]>("/api/ethics/audit-ledger"),
   withdrawConsent: (id: string) =>
-    apiFetch<any>(`/api/ethics/withdraw-consent/${id}`, { method: "POST" }),
+    apiFetch<{ status: string }>(`/api/ethics/withdraw-consent/${id}`, { method: "POST" }),
   translate: (text: string) =>
-    apiFetch<any>("/api/translate", {
+    apiFetch<TranslateResponse>("/api/translate", {
       method: "POST",
       body: JSON.stringify({ text }),
     }),
-  translateStatus: () => apiFetch<any>("/api/translate/status"),
+  translateStatus: () => apiFetch<TranslateStatusResponse>("/api/translate/status"),
 };

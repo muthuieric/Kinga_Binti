@@ -2,8 +2,8 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 
 class NarrativeSubmission(BaseModel):
-    narrative: str = Field(..., min_length=5, description="Community narrative text in Swahili or Maa")
-    language: str = Field(..., description="Language: Swahili or Maa")
+    narrative: str = Field(..., min_length=5, description="Community narrative text in English, Swahili or Maa")
+    language: str = Field(..., description="Language: English, Swahili or Maa")
     age_band: str = Field(..., description="Age category: Under 18, 18-25, 26-40, Over 40")
     gender: str = Field(..., description="Gender: Female, Male, Other")
     sub_county: str = Field(..., description="Narok or Kajiado sub-county")

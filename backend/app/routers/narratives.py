@@ -9,7 +9,7 @@ from ..schemas import (
     BatchImportResponse
 )
 from ..nlp.classifier import classifier_engine
-from ..database import save_narrative_record, get_all_records
+from ..database import save_narrative_record, get_all_records, save_narrative_records_bulk
 
 router = APIRouter(prefix="/narratives", tags=["Narratives"])
 
@@ -19,7 +19,7 @@ async def submit_narrative(submission: NarrativeSubmission):
     Submits a field narrative with mandatory consent gating.
     Enforces Ubuntu-informed ethical model (Objective 3):
     1. Rejects submissions without explicit informed consent.
-    2. Performs bilingual NLP discourse classification (Objective 1).
+    2. Performs trilingual NLP discourse classification (Objective 1).
     3. Pseudonymises narrative and separates text from metadata.
     """
     if not submission.consent_given:
@@ -28,7 +28,7 @@ async def submit_narrative(submission: NarrativeSubmission):
             detail="Informed consent is mandatory. No narrative can be stored or analysed without narrator consent."
         )
 
-    # 1. Bilingual NLP Analysis
+    # 1. Trilingual NLP Analysis
     analysis_result = classifier_engine.analyze_text(
         text=submission.narrative,
         language=submission.language
@@ -77,6 +77,7 @@ async def batch_import_narratives(request_data: BatchImportRequest):
     rejected_count = 0
     ground_truths = []
     predictions = []
+    to_save = []
 
     for item in request_data.narratives:
         if not item.consent_given:
@@ -106,8 +107,11 @@ async def batch_import_narratives(request_data: BatchImportRequest):
             "source_org": item.source_org or request_data.source_org,
             "consent_given": item.consent_given
         }
-        save_narrative_record(metadata=meta, narrative_doc=doc)
+        to_save.append({"metadata": meta, "narrative_doc": doc})
         imported_count += 1
+
+    if to_save:
+        save_narrative_records_bulk(to_save)
 
     validation_report = classifier_engine.compute_validation_metrics(ground_truths, predictions)
 
@@ -141,7 +145,7 @@ async def seed_benchmark_corpus(count: int = Query(50, ge=5, le=800)):
     """
     from ..nlp.corpus_generator import generate_benchmark_corpus
     samples = generate_benchmark_corpus(count)
-    inserted = 0
+    to_save = []
 
     for item in samples:
         analysis = classifier_engine.analyze_text(item["narrative"], item["language"])
@@ -163,8 +167,11 @@ async def seed_benchmark_corpus(count: int = Query(50, ge=5, le=800)):
             "source_org": item["source_org"],
             "consent_given": item["consent_given"]
         }
-        save_narrative_record(metadata=meta, narrative_doc=doc)
-        inserted += 1
+        to_save.append({"metadata": meta, "narrative_doc": doc})
+
+    if to_save:
+        save_narrative_records_bulk(to_save)
+    inserted = len(to_save)
 
     return {
         "status": "success",

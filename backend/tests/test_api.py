@@ -15,8 +15,9 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "online"
-    assert "Swahili" in data["bilingual_support"]
-    assert "Maa" in data["bilingual_support"]
+    assert "English" in data["trilingual_support"]
+    assert "Swahili" in data["trilingual_support"]
+    assert "Maa" in data["trilingual_support"]
 
 def test_consent_gate_enforcement():
     """Objective 3: Verify that submissions without consent are strictly rejected (HTTP 400)."""
@@ -222,15 +223,17 @@ def test_ethics_audit_ledger_and_revocation():
     assert revoke_res.status_code == 200
     assert revoke_res.json()["status"] == "revoked"
 
-def test_bilingual_lexicon_api():
+def test_trilingual_lexicon_api():
     """Test lexicon retrieval and field dialect term registration."""
     lex_res = client.get("/api/lexicon")
     assert lex_res.status_code == 200
     data = lex_res.json()
+    assert "english" in data
     assert "maa" in data
     assert "swahili" in data
     assert data["maa"]["total_terms"] > 0
     assert data["swahili"]["total_terms"] > 0
+    assert data["english"]["total_terms"] > 0
 
     # Test adding term
     post_res = client.post("/api/lexicon/term", json={

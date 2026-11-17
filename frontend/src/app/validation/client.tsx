@@ -17,7 +17,13 @@ function metrics() {
     const r = tp / row(i);
     f1s.push((2 * p * r) / (p + r));
   }
-  return { total, acc: po, kappa: (po - pe) / (1 - pe), f1: f1s.reduce((a, b) => a + b, 0) / n, f1s };
+  return {
+    total,
+    acc: po,
+    kappa: (po - pe) / (1 - pe),
+    f1: f1s.reduce((a, b) => a + b, 0) / n,
+    f1s,
+  };
 }
 
 export default function ValidationClient() {
@@ -61,9 +67,7 @@ export default function ValidationClient() {
             </p>
             <p
               className={`mt-1 text-xs ${
-                l === "Macro F1" && (v as number) >= 0.75
-                  ? "text-success"
-                  : "text-primary"
+                l === "Macro F1" && (v as number) >= 0.75 ? "text-success" : "text-primary"
               }`}
             >
               {s}
@@ -77,9 +81,7 @@ export default function ValidationClient() {
           <table className="w-full text-sm">
             <thead>
               <tr>
-                <th className="p-2 text-left text-xs text-muted-foreground">
-                  True ↓ / Pred →
-                </th>
+                <th className="p-2 text-left text-xs text-muted-foreground">True ↓ / Pred →</th>
                 {CONF_LABELS.map((c) => (
                   <th key={c} className="p-2 text-xs">
                     {CATEGORY_LABEL[c]}
@@ -90,18 +92,12 @@ export default function ValidationClient() {
             <tbody>
               {CONFUSION.map((r, i) => (
                 <tr key={i}>
-                  <th className="p-2 text-left text-xs">
-                    {CATEGORY_LABEL[CONF_LABELS[i]!]}
-                  </th>
+                  <th className="p-2 text-left text-xs">{CATEGORY_LABEL[CONF_LABELS[i]!]}</th>
                   {r.map((v, j) => (
                     <td key={j} className="p-1">
                       <div
                         className={`grid h-14 place-items-center rounded-lg font-semibold ${i === j ? "bg-primary text-primary-foreground" : "bg-muted"}`}
-                        style={
-                          i === j
-                            ? { opacity: 0.45 + 0.55 * (v / max) }
-                            : undefined
-                        }
+                        style={i === j ? { opacity: 0.45 + 0.55 * (v / max) } : undefined}
                       >
                         {v}
                       </div>
@@ -122,10 +118,7 @@ export default function ValidationClient() {
                   <span>{f.toFixed(2)}</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-accent"
-                    style={{ width: `${f * 100}%` }}
-                  />
+                  <div className="h-full rounded-full bg-accent" style={{ width: `${f * 100}%` }} />
                 </div>
               </div>
             ))}
@@ -140,15 +133,19 @@ export default function ValidationClient() {
         <table className="w-full text-sm">
           <thead className="bg-muted text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
-              {['Class', 'Precision', 'Recall', 'F1', 'Support'].map((h) => (
-                <th key={h} className="px-4 py-3 font-semibold">{h}</th>
+              {["Class", "Precision", "Recall", "F1", "Support"].map((h) => (
+                <th key={h} className="px-4 py-3 font-semibold">
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y">
             {perClass.map((c) => (
               <tr key={c.label}>
-                <td className="px-4 py-3">{CATEGORY_LABEL[c.label as keyof typeof CATEGORY_LABEL]}</td>
+                <td className="px-4 py-3">
+                  {CATEGORY_LABEL[c.label as keyof typeof CATEGORY_LABEL]}
+                </td>
                 <td className="px-4 py-3">{c.precision.toFixed(2)}</td>
                 <td className="px-4 py-3">{c.recall.toFixed(2)}</td>
                 <td className="px-4 py-3">{c.f1.toFixed(2)}</td>
@@ -157,9 +154,15 @@ export default function ValidationClient() {
             ))}
             <tr className="bg-muted/40 font-semibold">
               <td className="px-4 py-3">Macro avg</td>
-              <td className="px-4 py-3">{(perClass.reduce((a,c)=>a+c.precision,0)/perClass.length).toFixed(2)}</td>
-              <td className="px-4 py-3">{(perClass.reduce((a,c)=>a+c.recall,0)/perClass.length).toFixed(2)}</td>
-              <td className="px-4 py-3">{(perClass.reduce((a,c)=>a+c.f1,0)/perClass.length).toFixed(2)}</td>
+              <td className="px-4 py-3">
+                {(perClass.reduce((a, c) => a + c.precision, 0) / perClass.length).toFixed(2)}
+              </td>
+              <td className="px-4 py-3">
+                {(perClass.reduce((a, c) => a + c.recall, 0) / perClass.length).toFixed(2)}
+              </td>
+              <td className="px-4 py-3">
+                {(perClass.reduce((a, c) => a + c.f1, 0) / perClass.length).toFixed(2)}
+              </td>
               <td className="px-4 py-3">{totalSupport}</td>
             </tr>
           </tbody>

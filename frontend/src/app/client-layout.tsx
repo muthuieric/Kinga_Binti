@@ -9,13 +9,8 @@ import { AppShell } from "@/components/AppShell";
 
 const queryClient = new QueryClient();
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  useEffect(() => {
-  }, []);
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {}, []);
 
   return (
     <QueryClientProvider client={queryClient}>

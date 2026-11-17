@@ -26,14 +26,14 @@ export interface SyncResult {
   lastError?: string;
 }
 
-const DB_NAME = 'KingaBintiDB';
+const DB_NAME = "KingaBintiDB";
 const DB_VERSION = 1;
-const STORE_NAME = 'offline_narratives';
+const STORE_NAME = "offline_narratives";
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    if (typeof window === 'undefined' || !window.indexedDB) {
-      reject(new Error('IndexedDB not supported'));
+    if (typeof window === "undefined" || !window.indexedDB) {
+      reject(new Error("IndexedDB not supported"));
       return;
     }
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -41,7 +41,7 @@ function openDatabase(): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
       }
     };
 
@@ -50,14 +50,16 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
-export async function saveOfflineNarrative(data: Omit<QueuedNarrative, 'id' | 'queued_at'>): Promise<number> {
+export async function saveOfflineNarrative(
+  data: Omit<QueuedNarrative, "id" | "queued_at">,
+): Promise<number> {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     const item: QueuedNarrative = {
       ...data,
-      queued_at: new Date().toISOString()
+      queued_at: new Date().toISOString(),
     };
     const req = store.add(item);
     req.onsuccess = () => resolve(req.result as number);
@@ -69,7 +71,7 @@ export async function getOfflineNarratives(): Promise<QueuedNarrative[]> {
   try {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
+      const tx = db.transaction(STORE_NAME, "readonly");
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
       req.onsuccess = () => resolve(req.result || []);
@@ -83,7 +85,7 @@ export async function getOfflineNarratives(): Promise<QueuedNarrative[]> {
 export async function removeOfflineNarrative(id: number): Promise<void> {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     const req = store.delete(id);
     req.onsuccess = () => resolve();
@@ -95,7 +97,7 @@ export async function removeOfflineNarrative(id: number): Promise<void> {
 export async function clearOfflineQueue(): Promise<void> {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     const req = store.clear();
     req.onsuccess = () => resolve();
@@ -105,11 +107,15 @@ export async function clearOfflineQueue(): Promise<void> {
 
 // Persist diagnostic fields (last_error / last_status) onto a queued item so the
 // UI can explain why it is stuck.
-async function updateItemDiagnostics(id: number, last_status: number, last_error: string): Promise<void> {
+async function updateItemDiagnostics(
+  id: number,
+  last_status: number,
+  last_error: string,
+): Promise<void> {
   try {
     const db = await openDatabase();
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const tx = db.transaction(STORE_NAME, "readwrite");
       const store = tx.objectStore(STORE_NAME);
       const getReq = store.get(id);
       getReq.onsuccess = () => {
@@ -132,12 +138,16 @@ async function updateItemDiagnostics(id: number, last_status: number, last_error
 async function readErrorDetail(res: Response): Promise<string> {
   try {
     const body = await res.json();
-    if (typeof body?.detail === 'string') return body.detail;
+    if (typeof body?.detail === "string") return body.detail;
     if (Array.isArray(body?.detail)) {
       // Pydantic validation errors: [{type, loc, msg, ...}]
       return body.detail
-        .map((d: any) => `${d.loc?.[d.loc.length - 1] ?? 'field'}: ${d.msg}`)
-        .join('; ');
+        .map((d: unknown) => {
+          const obj = d as Record<string, unknown>;
+          const loc = obj["loc"] as unknown[] | undefined;
+          return `${loc?.[loc.length - 1] ?? "field"}: ${obj["msg"]}`;
+        })
+        .join("; ");
     }
     return JSON.stringify(body);
   } catch {
@@ -145,18 +155,20 @@ async function readErrorDetail(res: Response): Promise<string> {
   }
 }
 
-export async function syncOfflineQueue(apiUrl: string = '/api/narratives/submit'): Promise<SyncResult> {
+export async function syncOfflineQueue(
+  apiUrl: string = "/api/narratives/submit",
+): Promise<SyncResult> {
   const items = await getOfflineNarratives();
   let synced = 0;
   let retryable = 0;
-  const rejected: SyncResult['rejected'] = [];
+  const rejected: SyncResult["rejected"] = [];
   let lastError: string | undefined;
 
   for (const item of items) {
     try {
       const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           narrative: item.narrative,
           language: item.language,
@@ -165,8 +177,8 @@ export async function syncOfflineQueue(apiUrl: string = '/api/narratives/submit'
           sub_county: item.sub_county,
           source_org: item.source_org,
           label: item.label,
-          consent_given: item.consent_given
-        })
+          consent_given: item.consent_given,
+        }),
       });
 
       if (res.ok) {
@@ -184,10 +196,10 @@ export async function syncOfflineQueue(apiUrl: string = '/api/narratives/submit'
           await updateItemDiagnostics(item.id, res.status, detail);
         }
         rejected.push({
-           ...(item.id !== undefined ? { id: item.id } : {}),
+          ...(item.id !== undefined ? { id: item.id } : {}),
           status: res.status,
           detail,
-          narrative: (item.narrative || '').slice(0, 80)
+          narrative: (item.narrative || "").slice(0, 80),
         });
       } else {
         // 5xx — transient server error, worth retrying later.
@@ -197,13 +209,13 @@ export async function syncOfflineQueue(apiUrl: string = '/api/narratives/submit'
           await updateItemDiagnostics(item.id, res.status, lastError);
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       // Network failure — definitely retryable.
       retryable++;
-      lastError = e?.message ? `Network error: ${e.message}` : 'Network error';
+      const message = e instanceof Error ? e.message : "Network error";
+      lastError = `Network error: ${message}`;
     }
   }
 
   return { synced, retryable, rejected, ...(lastError ? { lastError } : {}) };
 }
-

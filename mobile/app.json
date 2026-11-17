@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Kinga Binti",
+    "slug": "kinga-binti-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F1E3"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F1E3"
+      }
+    },
+    "plugins": [
+      "expo-status-bar"
+    ],
+    "extra": {
+      "apiBaseUrl": "http://192.168.0.15:8000"
+    }
+  }
+}

@@ -41,13 +41,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-40 border-b bg-background/90 backdrop-blur">
-<div className="shuka h-1.5" />
+        <div className="shuka h-1.5" />
         <div className="mx-auto flex max-w-7xl items-center gap-6 px-5 py-3">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">N</span>
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">
+              N
+            </span>
             <span className="leading-tight">
               <span className="block font-display text-lg">Kinga Binti</span>
-              <span className="hidden xl:block text-[11px] uppercase tracking-widest text-muted-foreground">Community Narrative Monitor</span>
+              <span className="hidden xl:block text-[11px] uppercase tracking-widest text-muted-foreground">
+                Community Narrative Monitor
+              </span>
             </span>
           </Link>
           <nav className="ml-2 hidden flex-1 gap-0.5 xl:flex">
@@ -69,14 +73,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <span className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs ${online ? "text-success" : "text-warning"}`}>
+            <span
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs ${online ? "text-success" : "text-warning"}`}
+            >
               <span className={`h-2 w-2 rounded-full ${online ? "bg-success" : "bg-warning"}`} />
               {online ? t("online") : t("offline")}
             </span>
             <div className="flex rounded-full border p-0.5 text-xs">
               {(["en", "sw", "maa"] as UiLang[]).map((l) => (
-                <button key={l} onClick={() => setLang(l)}
-                  className={`rounded-full px-2.5 py-1 uppercase ${lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{l}</button>
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`rounded-full px-2.5 py-1 uppercase ${lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                >
+                  {l}
+                </button>
               ))}
             </div>
           </div>
@@ -100,17 +111,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
       </header>
-      <main className="mx-auto max-w-7xl px-5 py-8 pt-24 md:pt-16">
-        {children}
-      </main>
+      <main className="mx-auto max-w-7xl px-5 py-8 pt-24 md:pt-16">{children}</main>
       <footer className="border-t py-6 text-center text-xs text-muted-foreground">
-        Narok & Kajiado Counties · Consent-first · Kenya DPA 2019 aligned · Research aid — human review required
+        Narok & Kajiado Counties · Consent-first · Kenya DPA 2019 aligned · Research aid — human
+        review required
       </footer>
     </div>
   );
 }
 
-export function PageHead({ eyebrow, title, desc, right }: { eyebrow: string; title: string; desc?: string; right?: React.ReactNode }) {
+export function PageHead({
+  eyebrow,
+  title,
+  desc,
+  right,
+}: {
+  eyebrow: string;
+  title: string;
+  desc?: string;
+  right?: React.ReactNode;
+}) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -130,6 +150,15 @@ export function CatBadge({ c }: { c: string }) {
     other: "bg-risk-2 text-foreground",
     none: "bg-muted text-muted-foreground",
   };
-  const label: Record<string, string> = { fgm: "FGM", child_marriage: "Child marriage", other: "Other norm", none: "No signal" };
-  return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[c]}`}>{label[c]}</span>;
+  const label: Record<string, string> = {
+    fgm: "FGM",
+    child_marriage: "Child marriage",
+    other: "Other norm",
+    none: "No signal",
+  };
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[c]}`}>
+      {label[c]}
+    </span>
+  );
 }

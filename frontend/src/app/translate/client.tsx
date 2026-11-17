@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { PageHead } from "@/components/AppShell";
+import { Languages, Loader2, Copy, Check, Sparkles, ArrowRight } from "lucide-react";
 
 const GLOSS: [string, string][] = [
   ["female genital mutilation", "emuratare oo ntoyie"],
@@ -43,7 +44,7 @@ const EXAMPLES = [
   "Elders and mothers, thank you for protecting our children.",
 ];
 
-function translate(text: string) {
+function ruleBasedGlossary(text: string) {
   let out = text.toLowerCase();
   const used: [string, string][] = [];
   for (const [en, maa] of GLOSS) {
@@ -62,18 +63,53 @@ function translate(text: string) {
 
 export default function TranslateClient() {
   const [text, setText] = useState("");
-  const [res, setRes] = useState<ReturnType<typeof translate> | null>(null);
+  const [res, setRes] = useState<{ out: string; used: [string, string][]; source?: string } | null>(
+    null,
+  );
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const go = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() || busy) return;
     setBusy(true);
+    setCopied(false);
     try {
       const r = await api.translate(text);
-      setRes({ out: r.translated_text || r.translation || "", used: [] });
-    } catch (e: any) {
-      setRes({ out: `Error: ${e?.message || "translation failed"}`, used: [] });
+      const glossaryMatches = ruleBasedGlossary(text).used;
+      setRes({
+        out: r.translated_text || r.translation || "",
+        used: glossaryMatches,
+        source: "NLLB-200 + KnoxDevelopers LoRA",
+      });
+    } catch (e) {
+      // Fallback to offline rule-based dialect gloss if neural backend is unavailable
+      const fallback = ruleBasedGlossary(text);
+      if (fallback.used.length > 0) {
+        setRes({
+          out: fallback.out,
+          used: fallback.used,
+          source: "Dialect Glossary Fallback",
+        });
+      } else {
+        const message = e instanceof Error ? e.message : "connection error";
+        setRes({
+          out: `Translation service unavailable: ${message}. Please ensure the backend is running.`,
+          used: [],
+        });
+      }
     } finally {
       setBusy(false);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (!res?.out) return;
+    try {
+      await navigator.clipboard.writeText(res.out);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // ignore clipboard errors
     }
   };
 
@@ -85,65 +121,114 @@ export default function TranslateClient() {
         desc="Write an awareness message in English. The app drafts a Maa version for your outreach team."
       />
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card-soft flex flex-col p-6">
-          <p className="mb-2 text-sm font-medium">English</p>
+        <div className="card-soft flex flex-col p-6 shadow-sm">
+          <label
+            htmlFor="english-input"
+            className="mb-2 text-sm font-medium flex items-center justify-between"
+          >
+            <span>English source message</span>
+            <span className="text-xs text-muted-foreground">{text.length} chars</span>
+          </label>
           <textarea
+            id="english-input"
             rows={7}
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="e.g. Protect our girls and send them to school."
-            className="w-full flex-1 rounded-xl border bg-card px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-ring"
+            className="w-full flex-1 rounded-xl border bg-card px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring transition"
           />
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2 items-center">
+            <span className="text-xs font-medium text-muted-foreground mr-1">Quick examples:</span>
             {EXAMPLES.map((e) => (
               <button
                 key={e}
+                type="button"
                 onClick={() => setText(e)}
-                className="rounded-full border px-3 py-1 text-xs text-muted-foreground hover:bg-muted"
+                className="cursor-pointer rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition active:scale-95"
               >
                 {e}
               </button>
             ))}
           </div>
           <button
+            type="button"
             onClick={go}
             disabled={busy || !text.trim()}
-            className="mt-5 rounded-full bg-primary py-3 font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
+            className="mt-5 flex items-center justify-center gap-2.5 rounded-full bg-primary py-3.5 px-6 font-semibold text-primary-foreground shadow-md transition-all hover:brightness-105 hover:shadow-lg active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {busy ? "Translating…" : "Translate to Maa"}
-          </button>
-        </div>
-        <div className="card-soft flex flex-col p-6">
-          <p className="mb-2 text-sm font-medium">Maa</p>
-          <div className="flex-1 rounded-xl bg-muted p-4">
-            {res ? (
-              <p className="font-display text-2xl leading-relaxed">{res.out}</p>
+            {busy ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Translating to Maa with AI model…</span>
+              </>
             ) : (
-              <p className="text-muted-foreground">
-                Your results will appear here.
+              <>
+                <Languages className="h-5 w-5" />
+                <span>Translate to Maa</span>
+                <ArrowRight className="h-4 w-4 opacity-75" />
+              </>
+            )}
+          </button>
+          {busy && (
+            <p className="mt-2 text-center text-xs text-muted-foreground animate-pulse">
+              Running NLLB-200 seq2seq translation on CPU. Please wait a few seconds…
+            </p>
+          )}
+        </div>
+
+        <div className="card-soft flex flex-col p-6 shadow-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-medium">Maa (Maasai) translation</p>
+          </div>
+          <div className="flex-1 rounded-xl bg-muted/70 border p-4.5 min-h-[160px] flex items-center">
+            {res ? (
+              <p className="font-display text-2xl leading-relaxed text-foreground select-text">
+                {res.out}
               </p>
+            ) : (
+              <p className="text-sm text-muted-foreground flex items-center gap-2"></p>
             )}
           </div>
+
           {res && res.used.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
-              {res.used.filter(([, m]) => m).map(([en, m]) => (
-                <span key={en} className="rounded-full border px-3 py-1 text-xs">
-                  <b>{en}</b> → {m}
-                </span>
-              ))}
+              <span className="w-full text-xs font-medium text-muted-foreground">
+                Cultural lexicon matches:
+              </span>
+              {res.used
+                .filter(([, m]) => m)
+                .map(([en, m]) => (
+                  <span
+                    key={en}
+                    className="rounded-full border bg-background px-3 py-1 text-xs shadow-xs"
+                  >
+                    <b className="text-primary">{en}</b> → <span className="font-medium">{m}</span>
+                  </span>
+                ))}
             </div>
           )}
+
           {res && (
-            <button
-              onClick={() => navigator.clipboard.writeText(res.out)}
-              className="mt-4 w-fit rounded-full border px-4 py-2 text-sm"
-            >
-              Copy draft
-            </button>
+            <div className="mt-5 flex items-center justify-between border-t pt-4">
+              <button
+                type="button"
+                onClick={copyToClipboard}
+                className="cursor-pointer inline-flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted active:scale-95 transition shadow-xs"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 text-emerald-600" />
+                    <span className="text-emerald-600">Copied to clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 text-muted-foreground" />
+                    <span>Copy draft</span>
+                  </>
+                )}
+              </button>
+            </div>
           )}
-          {/* <p className="mt-5 rounded-xl border border-warning/50 bg-warning/10 p-3 text-xs">
-            This is a drafting aid trained on a small set of examples. Always have a Maa speaker check the wording before sharing it with the community.
-          </p> */}
         </div>
       </div>
     </>

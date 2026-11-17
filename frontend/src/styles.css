@@ -66,17 +66,30 @@
   --risk-3: oklch(0.65 0.17 45);
   --risk-4: oklch(0.48 0.18 28);
   --shadow-soft: 0 1px 2px oklch(0.3 0.05 40 / 6%), 0 8px 24px -12px oklch(0.3 0.05 40 / 18%);
-  --pattern-shuka: repeating-linear-gradient(90deg, var(--primary) 0 14px, var(--ink) 14px 18px, var(--primary) 18px 30px, var(--accent) 30px 34px);
+  --pattern-shuka: repeating-linear-gradient(
+    90deg,
+    var(--primary) 0 14px,
+    var(--ink) 14px 18px,
+    var(--primary) 18px 30px,
+    var(--accent) 30px 34px
+  );
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
 }
 
 @utility card-soft {

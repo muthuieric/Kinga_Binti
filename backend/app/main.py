@@ -97,10 +97,10 @@ async def health_check():
         "status": "online",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,
-        "bilingual_support": ["Swahili", "Maa"],
+        "trilingual_support": ["English", "Swahili", "Maa"],
         "counties_targeted": ["Narok", "Kajiado"],
         "objectives": {
-            "O1_bilingual_nlp": "Active (Transformer / Dialect Heuristics)",
+            "O1_trilingual_nlp": "Active (Transformer / Dialect Heuristics)",
             "O2_qualitative_validation": "Active (CBO Export & Annotation Matching)",
             "O3_ethical_model": "Active (Strict Consent Gated)"
         },

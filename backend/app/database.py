@@ -2,6 +2,7 @@ import json
 import os
 import sqlite3
 import uuid
+from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 import logging
@@ -15,10 +16,23 @@ _use_sqlite_fallback = True
 _use_json_fallback = True
 _pg_pool = None
 _mongo_client = None
+_initialized = False
+_records_cache: Optional[List[Dict[str, Any]]] = None
+
+
+def _invalidate_records_cache():
+    global _records_cache
+    _records_cache = None
+
+
+def _ensure_initialized():
+    if not _initialized:
+        init_databases()
+
 
 def init_databases():
     """Initializes SQL and NoSQL storage with automatic fallback."""
-    global _use_sqlite_fallback, _use_json_fallback, _pg_pool, _mongo_client
+    global _use_sqlite_fallback, _use_json_fallback, _pg_pool, _mongo_client, _initialized
 
     # 1. SQL Initialization (PostgreSQL or SQLite fallback)
     try:
@@ -93,6 +107,26 @@ def init_databases():
             with open(settings.JSON_DOCS_PATH, "w", encoding="utf-8") as f:
                 json.dump([], f)
 
+    _initialized = True
+    _invalidate_records_cache()
+
+
+def _load_json_docs() -> List[Dict[str, Any]]:
+    if not os.path.exists(settings.JSON_DOCS_PATH):
+        return []
+    try:
+        with open(settings.JSON_DOCS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def _write_json_docs(docs: List[Dict[str, Any]]):
+    os.makedirs(os.path.dirname(settings.JSON_DOCS_PATH), exist_ok=True)
+    with open(settings.JSON_DOCS_PATH, "w", encoding="utf-8") as f:
+        json.dump(docs, f, indent=2, ensure_ascii=False)
+
 
 def save_narrative_record(
     metadata: Dict[str, Any],
@@ -102,28 +136,22 @@ def save_narrative_record(
     Saves unstructured narrative into NoSQL and structured metadata into SQL.
     Ensures pseudonymised linkage using narrative_id.
     """
-    init_databases()
+    _ensure_initialized()
     narrative_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
 
+    narrative_doc = dict(narrative_doc)
     narrative_doc["narrative_id"] = narrative_id
     narrative_doc["created_at"] = now_iso
 
     # Save to NoSQL
     if not _use_json_fallback and _mongo_client:
         db = _mongo_client[settings.MONGO_DB]
-        db.narratives.insert_one(narrative_doc)
+        db.narratives.insert_one(dict(narrative_doc))
     else:
-        docs = []
-        if os.path.exists(settings.JSON_DOCS_PATH):
-            with open(settings.JSON_DOCS_PATH, "r", encoding="utf-8") as f:
-                try:
-                    docs = json.load(f)
-                except Exception:
-                    docs = []
+        docs = _load_json_docs()
         docs.append(narrative_doc)
-        with open(settings.JSON_DOCS_PATH, "w", encoding="utf-8") as f:
-            json.dump(docs, f, indent=2, ensure_ascii=False)
+        _write_json_docs(docs)
 
     # Save to SQL
     if not _use_sqlite_fallback:
@@ -169,12 +197,92 @@ def save_narrative_record(
             ))
         conn.close()
 
+    _invalidate_records_cache()
     return narrative_id
+
+
+def save_narrative_records_bulk(records: List[Dict[str, Any]]) -> List[str]:
+    """
+    Saves multiple (metadata, narrative_doc) pairs efficiently.
+    Each item must be {"metadata": {...}, "narrative_doc": {...}}.
+    """
+    if not records:
+        return []
+    _ensure_initialized()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    ids: List[str] = []
+    prepared_docs = []
+    prepared_meta = []
+
+    for item in records:
+        narrative_id = str(uuid.uuid4())
+        ids.append(narrative_id)
+        doc = dict(item.get("narrative_doc", {}))
+        doc["narrative_id"] = narrative_id
+        doc["created_at"] = now_iso
+        prepared_docs.append(doc)
+        meta = dict(item.get("metadata", {}))
+        meta["narrative_id"] = narrative_id
+        meta["now_iso"] = now_iso
+        prepared_meta.append(meta)
+
+    # NoSQL / JSON batch
+    if not _use_json_fallback and _mongo_client:
+        db = _mongo_client[settings.MONGO_DB]
+        # insert_many mutates docs by adding _id; use copies
+        db.narratives.insert_many([dict(d) for d in prepared_docs])
+    else:
+        docs = _load_json_docs()
+        docs.extend(prepared_docs)
+        _write_json_docs(docs)
+
+    # SQL batch
+    if not _use_sqlite_fallback:
+        import psycopg2
+        conn = psycopg2.connect(
+            host=settings.POSTGRES_HOST,
+            port=settings.POSTGRES_PORT,
+            dbname=settings.POSTGRES_DB,
+            user=settings.POSTGRES_USER,
+            password=settings.POSTGRES_PASSWORD
+        )
+        with conn.cursor() as cur:
+            cur.executemany("""
+                INSERT INTO narrative_metadata
+                (narrative_id, age_band, gender, sub_county, source_org, consent_given, consent_timestamp, date_collected)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+            """, [(
+                m["narrative_id"], m.get("age_band"), m.get("gender"),
+                m.get("sub_county"), m.get("source_org"), m.get("consent_given")
+            ) for m in prepared_meta])
+            conn.commit()
+        conn.close()
+    else:
+        conn = sqlite3.connect(settings.SQLITE_PATH)
+        with conn:
+            conn.executemany("""
+                INSERT INTO narrative_metadata
+                (narrative_id, age_band, gender, sub_county, source_org, consent_given, consent_timestamp, date_collected)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, [(
+                m["narrative_id"], m.get("age_band"), m.get("gender"),
+                m.get("sub_county"), m.get("source_org"),
+                1 if m.get("consent_given") else 0,
+                m["now_iso"], m["now_iso"]
+            ) for m in prepared_meta])
+        conn.close()
+
+    _invalidate_records_cache()
+    return ids
 
 
 def get_all_records() -> List[Dict[str, Any]]:
     """Retrieves merged SQL metadata and NoSQL narrative analysis records."""
-    init_databases()
+    global _records_cache
+    _ensure_initialized()
+    if _records_cache is not None:
+        return [dict(r) for r in _records_cache]
+
     # 1. Fetch NoSQL docs
     docs_by_id = {}
     if not _use_json_fallback and _mongo_client:
@@ -184,15 +292,10 @@ def get_all_records() -> List[Dict[str, Any]]:
             if nid:
                 docs_by_id[nid] = doc
     else:
-        if os.path.exists(settings.JSON_DOCS_PATH):
-            with open(settings.JSON_DOCS_PATH, "r", encoding="utf-8") as f:
-                try:
-                    for doc in json.load(f):
-                        nid = doc.get("narrative_id")
-                        if nid:
-                            docs_by_id[nid] = doc
-                except Exception:
-                    pass
+        for doc in _load_json_docs():
+            nid = doc.get("narrative_id")
+            if nid:
+                docs_by_id[nid] = doc
 
     # 2. Fetch SQL rows
     meta_rows = []
@@ -245,4 +348,5 @@ def get_all_records() -> List[Dict[str, Any]]:
         }
         combined.append(item)
 
-    return combined
+    _records_cache = combined
+    return [dict(r) for r in combined]

@@ -2,8 +2,7 @@ import CaptureClient from "./client";
 
 export const metadata = {
   title: "Capture a narrative — Kinga Binti",
-  description:
-    "Record a consented Swahili or Maa narrative and get an explainable classification.",
+  description: "Record a consented Swahili or Maa narrative and get an explainable classification.",
   openGraph: {
     title: "Capture a narrative — Kinga Binti",
     description:
