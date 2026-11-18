@@ -24,3 +24,6 @@ backend/backend/models/
 *.safetensors
 *.bin
 .locks/
+
+
+mobile/ 
