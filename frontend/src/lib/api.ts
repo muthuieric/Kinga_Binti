@@ -115,11 +115,17 @@ export interface TranslateStatusResponse {
 }
 
 export interface TranslateResponse {
-  out: string;
+  out?: string;
   translated_text?: string;
   translation?: string;
-  model: string;
-  adapter: string;
+  source_language?: string;
+  target_language?: string;
+  src_lang_code?: string;
+  tgt_lang_code?: string;
+  model?: string;
+  adapter?: string | null;
+  license?: string;
+  review_recommended?: boolean;
 }
 
 export const api = {
@@ -143,10 +149,10 @@ export const api = {
   ethicsLedger: () => apiFetch<EthicsLedgerResponse[]>("/api/ethics/audit-ledger"),
   withdrawConsent: (id: string) =>
     apiFetch<{ status: string }>(`/api/ethics/withdraw-consent/${id}`, { method: "POST" }),
-  translate: (text: string) =>
+  translate: (text: string, target_language: string = "maa") =>
     apiFetch<TranslateResponse>("/api/translate", {
       method: "POST",
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, target_language }),
     }),
   translateStatus: () => apiFetch<TranslateStatusResponse>("/api/translate/status"),
 };

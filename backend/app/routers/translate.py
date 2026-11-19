@@ -17,7 +17,11 @@ router = APIRouter(prefix="/translate", tags=["English to Maasai Translation"])
 
 
 class TranslationRequest(BaseModel):
-    text: str = Field(..., min_length=1, description="English text to translate into Maasai")
+    text: str = Field(..., min_length=1, description="English text to translate")
+    target_language: Optional[str] = Field(
+        default="maa",
+        description="Target language: 'maa' (default, uses LoRA) or 'swahili' (uses NLLB native)",
+    )
     max_new_tokens: Optional[int] = Field(
         default=None, ge=8, le=512, description="Cap on generated tokens"
     )
@@ -26,6 +30,10 @@ class TranslationRequest(BaseModel):
 class BatchTranslationRequest(BaseModel):
     texts: List[str] = Field(
         ..., min_length=1, max_length=20, description="English texts (max 20 per request)"
+    )
+    target_language: Optional[str] = Field(
+        default="maa",
+        description="Target language: 'maa' (default) or 'swahili'",
     )
 
 
@@ -60,7 +68,10 @@ async def translate_text(request: TranslationRequest) -> Dict[str, Any]:
         # not run on the event loop.
         translator = await run_in_threadpool(get_translator)
         result = await run_in_threadpool(
-            translator.translate, request.text, request.max_new_tokens
+            translator.translate,
+            request.text,
+            request.target_language,
+            request.max_new_tokens,
         )
     except ImportError as exc:
         raise HTTPException(
@@ -77,17 +88,23 @@ async def translate_text(request: TranslationRequest) -> Dict[str, Any]:
             detail=f"Translation failed: {exc}",
         )
 
-    result["license"] = "cc-by-nc-4.0 (non-commercial use only)"
-    result["review_recommended"] = True
+    if result.get("target_language") == "Swahili":
+        result["license"] = "NLLB-200 Open Model License"
+        result["review_recommended"] = False
+    else:
+        result["license"] = "cc-by-nc-4.0 (non-commercial use only)"
+        result["review_recommended"] = True
     return result
 
 
 @router.post("/batch")
 async def translate_batch(request: BatchTranslationRequest) -> Dict[str, Any]:
-    """Translates several short English texts into Maasai in one request."""
+    """Translates several short English texts into Maasai or Swahili in one request."""
     try:
         translator = await run_in_threadpool(get_translator)
-        results = await run_in_threadpool(translator.translate_batch, request.texts)
+        results = await run_in_threadpool(
+            translator.translate_batch, request.texts, request.target_language
+        )
     except ImportError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

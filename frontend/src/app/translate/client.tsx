@@ -63,6 +63,7 @@ function ruleBasedGlossary(text: string) {
 
 export default function TranslateClient() {
   const [text, setText] = useState("");
+  const [targetLang, setTargetLang] = useState<"maa" | "swahili">("maa");
   const [res, setRes] = useState<{ out: string; used: [string, string][]; source?: string } | null>(
     null,
   );
@@ -74,29 +75,31 @@ export default function TranslateClient() {
     setBusy(true);
     setCopied(false);
     try {
-      const r = await api.translate(text);
-      const glossaryMatches = ruleBasedGlossary(text).used;
+      const r = await api.translate(text, targetLang);
+      const glossaryMatches = targetLang === "maa" ? ruleBasedGlossary(text).used : [];
       setRes({
         out: r.translated_text || r.translation || "",
         used: glossaryMatches,
-        source: "NLLB-200 + KnoxDevelopers LoRA",
+        source: targetLang === "maa" ? "NLLB-200 + LoRA" : "NLLB-200",
       });
     } catch (e) {
-      // Fallback to offline rule-based dialect gloss if neural backend is unavailable
-      const fallback = ruleBasedGlossary(text);
-      if (fallback.used.length > 0) {
-        setRes({
-          out: fallback.out,
-          used: fallback.used,
-          source: "Dialect Glossary Fallback",
-        });
-      } else {
-        const message = e instanceof Error ? e.message : "connection error";
-        setRes({
-          out: `Translation service unavailable: ${message}. Please ensure the backend is running.`,
-          used: [],
-        });
+      // Fallback to offline rule-based dialect gloss if neural backend is unavailable (Maa only)
+      if (targetLang === "maa") {
+        const fallback = ruleBasedGlossary(text);
+        if (fallback.used.length > 0) {
+          setRes({
+            out: fallback.out,
+            used: fallback.used,
+            source: "Dialect Glossary Fallback",
+          });
+          return;
+        }
       }
+      const message = e instanceof Error ? e.message : "connection error";
+      setRes({
+        out: `Translation service unavailable: ${message}. Please ensure the backend is running.`,
+        used: [],
+      });
     } finally {
       setBusy(false);
     }
@@ -116,9 +119,11 @@ export default function TranslateClient() {
   return (
     <>
       <PageHead
-        eyebrow="Role 02 · Translator"
-        title="English → Maa"
-        desc="Write an awareness message in English. The app drafts a Maa version for your outreach team."
+        eyebrow="Role 02 · Outreach Translator"
+        title={`English → ${targetLang === "maa" ? "Maa" : "Swahili"}`}
+        desc={`Write an awareness message in English. The app drafts a ${
+          targetLang === "maa" ? "Maa (Maasai)" : "Swahili"
+        } version for your outreach team.`}
       />
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card-soft flex flex-col p-6 shadow-sm">
@@ -150,6 +155,60 @@ export default function TranslateClient() {
               </button>
             ))}
           </div>
+
+          <div className="mt-4 pt-3 border-t">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Target Language
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTargetLang("maa");
+                  setRes(null);
+                }}
+                className={`flex flex-col items-start rounded-xl border p-3 text-left transition cursor-pointer ${
+                  targetLang === "maa"
+                    ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                }`}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <span className="font-semibold text-sm">Maa (Maasai)</span>
+                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                    LoRA Adapter
+                  </span>
+                </div>
+                <span className="mt-1 text-xs text-muted-foreground">
+                  NLLB-200 + KnoxDevelopers LoRA
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTargetLang("swahili");
+                  setRes(null);
+                }}
+                className={`flex flex-col items-start rounded-xl border p-3 text-left transition cursor-pointer ${
+                  targetLang === "swahili"
+                    ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                }`}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <span className="font-semibold text-sm">Swahili (Kiswahili)</span>
+                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                    Native
+                  </span>
+                </div>
+                <span className="mt-1 text-xs text-muted-foreground">
+                  NLLB-200 Native
+                </span>
+              </button>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={go}
@@ -159,12 +218,14 @@ export default function TranslateClient() {
             {busy ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Translating to Maa with AI model…</span>
+                <span>
+                  Translating to {targetLang === "maa" ? "Maa" : "Swahili"} with AI model…
+                </span>
               </>
             ) : (
               <>
                 <Languages className="h-5 w-5" />
-                <span>Translate to Maa</span>
+                <span>Translate to {targetLang === "maa" ? "Maa" : "Swahili"}</span>
                 <ArrowRight className="h-4 w-4 opacity-75" />
               </>
             )}
@@ -178,7 +239,19 @@ export default function TranslateClient() {
 
         <div className="card-soft flex flex-col p-6 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-medium">Maa (Maasai) translation</p>
+            <p className="text-sm font-medium">
+              {targetLang === "maa" ? "Maa (Maasai)" : "Swahili"} translation
+            </p>
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border ${
+                targetLang === "maa"
+                  ? "bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-300"
+                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300"
+              }`}
+            >
+              <Sparkles className="h-3 w-3" />
+              {targetLang === "maa" ? "NLLB-200 + LoRA" : "NLLB-200"}
+            </span>
           </div>
           <div className="flex-1 rounded-xl bg-muted/70 border p-4.5 min-h-[160px] flex items-center">
             {res ? (
@@ -186,11 +259,14 @@ export default function TranslateClient() {
                 {res.out}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground flex items-center gap-2"></p>
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                Click translate to generate an outreach draft in{" "}
+                {targetLang === "maa" ? "Maa" : "Swahili"}.
+              </p>
             )}
           </div>
 
-          {res && res.used.length > 0 && (
+          {targetLang === "maa" && res && res.used.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="w-full text-xs font-medium text-muted-foreground">
                 Cultural lexicon matches:

@@ -40,18 +40,30 @@ class _FakeTranslator:
 
     _loaded = True
 
-    def translate(self, text, max_new_tokens=None):
+    def translate(self, text, target_lang=None, max_new_tokens=None):
+        raw_tgt = (target_lang or "mas_Latn").lower()
+        if raw_tgt in ("swahili", "swh_latn", "sw"):
+            tgt_name = "Swahili"
+            tgt_code = "swh_Latn"
+            adapter = None
+        else:
+            tgt_name = "Maasai"
+            tgt_code = "mas_Latn"
+            adapter = "KnoxDevelopers/English-to-Maasai-language-translation-LoRA"
+
         return {
             "source_text": text,
-            "translated_text": "[fake maasai output]",
+            "translated_text": f"[fake {tgt_name.lower()} output]",
             "source_language": "English",
-            "target_language": "Maasai",
+            "target_language": tgt_name,
             "src_lang_code": "eng_Latn",
-            "tgt_lang_code": "mas_Latn",
+            "tgt_lang_code": tgt_code,
+            "model": "facebook/nllb-200-distilled-600M",
+            "adapter": adapter,
         }
 
-    def translate_batch(self, texts):
-        return [self.translate(t) for t in texts]
+    def translate_batch(self, texts, target_lang=None):
+        return [self.translate(t, target_lang=target_lang) for t in texts]
 
 
 def test_translation_status_endpoint():
@@ -120,6 +132,29 @@ def test_translate_endpoint_contract_with_fake_model():
         translator_module._translator_instance = original
 
 
+def test_translate_swahili_endpoint_contract_with_fake_model():
+    """
+    Validates English -> Swahili translation contract using fake translator.
+    """
+    original = translator_module._translator_instance
+    try:
+        translator_module._translator_instance = _FakeTranslator()
+        response = client.post(
+            "/api/translate",
+            json={"text": "Protect our children.", "target_language": "swahili"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["translated_text"] == "[fake swahili output]"
+        assert data["source_language"] == "English"
+        assert data["target_language"] == "Swahili"
+        assert data["tgt_lang_code"] == "swh_Latn"
+        assert "NLLB-200" in data["license"]
+        assert data["review_recommended"] is False
+    finally:
+        translator_module._translator_instance = original
+
+
 def test_batch_translation_contract_with_fake_model():
     original = translator_module._translator_instance
     try:
@@ -172,6 +207,7 @@ if __name__ == "__main__":
     test_translate_graceful_when_model_stack_missing()
     test_translate_rejects_empty_text()
     test_translate_endpoint_contract_with_fake_model()
+    test_translate_swahili_endpoint_contract_with_fake_model()
     test_batch_translation_contract_with_fake_model()
     test_batch_translation_rejects_over_limit()
     test_real_translation_when_available()

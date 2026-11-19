@@ -186,15 +186,23 @@ class MaasaiTranslator:
 
     # ------------------------------------------------------------- inference
 
-    def translate(self, text: str, max_new_tokens: Optional[int] = None) -> Dict[str, Any]:
-        """Translates a single English string into Maasai.
+    def translate(
+        self,
+        text: str,
+        target_lang: Optional[str] = None,
+        max_new_tokens: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Translates a single English string into Maasai or Swahili.
 
-        Returns the Maasai text plus the BCP-style language codes used, so the
-        frontend can label the output unambiguously.
+        - For Maasai (default): Uses NLLB-200 + KnoxDevelopers LoRA adapter.
+        - For Swahili: Disables the LoRA adapter to leverage NLLB-200's native Swahili support.
+
+        Returns the translated text plus the BCP-style language codes used.
         """
         if not self._loaded:
             self.load()
 
+        import contextlib
         import torch
 
         text = (text or "").strip()
@@ -204,6 +212,18 @@ class MaasaiTranslator:
         max_tokens = max_new_tokens or self.max_new_tokens
         tokenizer = self.tokenizer
         model = self.model
+
+        # Resolve target language and whether to use the Maasai LoRA adapter
+        raw_tgt = (target_lang or self.tgt_lang or "mas_Latn").strip()
+        lower_tgt = raw_tgt.lower()
+        if lower_tgt in ("swahili", "swh_latn", "sw"):
+            tgt_code = "swh_Latn"
+            target_name = "Swahili"
+            use_lora = False
+        else:
+            tgt_code = "mas_Latn"
+            target_name = "Maasai"
+            use_lora = True
 
         # NLLB requires the source language token to be set on the tokenizer.
         tokenizer.src_lang = self.src_lang
@@ -216,7 +236,7 @@ class MaasaiTranslator:
         )
 
         # forced_bos_token_id is what actually makes NLLB generate the target language.
-        forced_bos_token_id = tokenizer.convert_tokens_to_ids(self.tgt_lang)
+        forced_bos_token_id = tokenizer.convert_tokens_to_ids(tgt_code)
 
         gen_kwargs = {
             **encoded,
@@ -229,7 +249,14 @@ class MaasaiTranslator:
         if self.num_beams <= 1:
             gen_kwargs["do_sample"] = False
 
-        with torch.inference_mode():
+        # When translating to Swahili, disable the Maa LoRA adapter so base NLLB-200
+        # produces clean native Swahili without distortion from the Maa adapter.
+        if not use_lora and hasattr(model, "disable_adapter"):
+            adapter_cm = model.disable_adapter()
+        else:
+            adapter_cm = contextlib.nullcontext()
+
+        with torch.inference_mode(), adapter_cm:
             generated = model.generate(**gen_kwargs)
 
         translation = tokenizer.batch_decode(generated, skip_special_tokens=True)[0]
@@ -238,18 +265,22 @@ class MaasaiTranslator:
             "source_text": text,
             "translated_text": translation.strip(),
             "source_language": "English",
-            "target_language": "Maasai",
+            "target_language": target_name,
             "src_lang_code": self.src_lang,
-            "tgt_lang_code": self.tgt_lang,
+            "tgt_lang_code": tgt_code,
+            "model": self.base_model,
+            "adapter": self.adapter_model if use_lora else None,
         }
 
-    def translate_batch(self, texts: List[str]) -> List[Dict[str, Any]]:
+    def translate_batch(
+        self, texts: List[str], target_lang: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """Translates several English strings, one at a time.
 
         Batching is deliberately simple: sentences vary in length and the model
         is small, so per-item generation keeps memory predictable on CPU.
         """
-        return [self.translate(t) for t in texts]
+        return [self.translate(t, target_lang=target_lang) for t in texts]
 
 
 def check_availability() -> Dict[str, Any]:
@@ -266,6 +297,7 @@ def check_availability() -> Dict[str, Any]:
         "reason": None,
         "missing_dependencies": [],
         "weights_present": False,
+        "supported_targets": ["maa", "swahili"],
     }
 
     if not settings.TRANSLATOR_ENABLED:
