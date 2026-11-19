@@ -149,10 +149,14 @@ export const api = {
   ethicsLedger: () => apiFetch<EthicsLedgerResponse[]>("/api/ethics/audit-ledger"),
   withdrawConsent: (id: string) =>
     apiFetch<{ status: string }>(`/api/ethics/withdraw-consent/${id}`, { method: "POST" }),
-  translate: (text: string, target_language: string = "maa") =>
+  translate: (
+    text: string,
+    target_language: string = "maa",
+    source_language: string = "english",
+  ) =>
     apiFetch<TranslateResponse>("/api/translate", {
       method: "POST",
-      body: JSON.stringify({ text, target_language }),
+      body: JSON.stringify({ text, target_language, source_language }),
     }),
   translateStatus: () => apiFetch<TranslateStatusResponse>("/api/translate/status"),
 };

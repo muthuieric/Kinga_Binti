@@ -191,13 +191,14 @@ class MaasaiTranslator:
         text: str,
         target_lang: Optional[str] = None,
         max_new_tokens: Optional[int] = None,
+        source_lang: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Translates a single English string into Maasai or Swahili.
+        """Translates a string across supported language pairs:
+        - English -> Maasai (via NLLB-200 + KnoxDevelopers LoRA adapter)
+        - English -> Swahili (via NLLB-200 native)
+        - Swahili -> English (via NLLB-200 native)
 
-        - For Maasai (default): Uses NLLB-200 + KnoxDevelopers LoRA adapter.
-        - For Swahili: Disables the LoRA adapter to leverage NLLB-200's native Swahili support.
-
-        Returns the translated text plus the BCP-style language codes used.
+        Returns the translated text plus language codes and engine metadata.
         """
         if not self._loaded:
             self.load()
@@ -213,20 +214,33 @@ class MaasaiTranslator:
         tokenizer = self.tokenizer
         model = self.model
 
+        # Resolve source language
+        raw_src = (source_lang or self.src_lang or "eng_Latn").strip().lower()
+        if raw_src in ("swahili", "swh_latn", "sw"):
+            src_code = "swh_Latn"
+            source_name = "Swahili"
+        else:
+            src_code = "eng_Latn"
+            source_name = "English"
+
         # Resolve target language and whether to use the Maasai LoRA adapter
-        raw_tgt = (target_lang or self.tgt_lang or "mas_Latn").strip()
-        lower_tgt = raw_tgt.lower()
-        if lower_tgt in ("swahili", "swh_latn", "sw"):
+        raw_tgt = (target_lang or self.tgt_lang or "mas_Latn").strip().lower()
+        if raw_tgt in ("english", "eng_latn", "en"):
+            tgt_code = "eng_Latn"
+            target_name = "English"
+            use_lora = False
+        elif raw_tgt in ("swahili", "swh_latn", "sw"):
             tgt_code = "swh_Latn"
             target_name = "Swahili"
             use_lora = False
         else:
             tgt_code = "mas_Latn"
             target_name = "Maasai"
-            use_lora = True
+            # Only English -> Maa uses the LoRA adapter
+            use_lora = (src_code == "eng_Latn")
 
         # NLLB requires the source language token to be set on the tokenizer.
-        tokenizer.src_lang = self.src_lang
+        tokenizer.src_lang = src_code
 
         encoded = tokenizer(
             text,
@@ -249,8 +263,8 @@ class MaasaiTranslator:
         if self.num_beams <= 1:
             gen_kwargs["do_sample"] = False
 
-        # When translating to Swahili, disable the Maa LoRA adapter so base NLLB-200
-        # produces clean native Swahili without distortion from the Maa adapter.
+        # When not translating to Maa with LoRA, disable the adapter so base NLLB-200
+        # produces clean native translations without distortion from the Maa adapter.
         if not use_lora and hasattr(model, "disable_adapter"):
             adapter_cm = model.disable_adapter()
         else:
@@ -264,23 +278,22 @@ class MaasaiTranslator:
         return {
             "source_text": text,
             "translated_text": translation.strip(),
-            "source_language": "English",
+            "source_language": source_name,
             "target_language": target_name,
-            "src_lang_code": self.src_lang,
+            "src_lang_code": src_code,
             "tgt_lang_code": tgt_code,
             "model": self.base_model,
             "adapter": self.adapter_model if use_lora else None,
         }
 
     def translate_batch(
-        self, texts: List[str], target_lang: Optional[str] = None
+        self,
+        texts: List[str],
+        target_lang: Optional[str] = None,
+        source_lang: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Translates several English strings, one at a time.
-
-        Batching is deliberately simple: sentences vary in length and the model
-        is small, so per-item generation keeps memory predictable on CPU.
-        """
-        return [self.translate(t, target_lang=target_lang) for t in texts]
+        """Translates several strings, one at a time."""
+        return [self.translate(t, target_lang=target_lang, source_lang=source_lang) for t in texts]
 
 
 def check_availability() -> Dict[str, Any]:
@@ -297,7 +310,11 @@ def check_availability() -> Dict[str, Any]:
         "reason": None,
         "missing_dependencies": [],
         "weights_present": False,
-        "supported_targets": ["maa", "swahili"],
+        "supported_pairs": [
+            {"source": "English", "target": "Maa", "engine": "NLLB-200 + LoRA"},
+            {"source": "English", "target": "Swahili", "engine": "NLLB-200 Native"},
+            {"source": "Swahili", "target": "English", "engine": "NLLB-200 Native"},
+        ],
     }
 
     if not settings.TRANSLATOR_ENABLED:

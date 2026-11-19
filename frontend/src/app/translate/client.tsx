@@ -38,11 +38,19 @@ const GLOSS: [string, string][] = [
   ["help", "aretoo"],
 ];
 
-const EXAMPLES = [
+const EXAMPLES_EN = [
   "Protect our girls and send them to school.",
   "Stop child marriage — every girl deserves a future.",
   "Elders and mothers, thank you for protecting our children.",
 ];
+
+const EXAMPLES_SWH = [
+  "Komesha ukeketaji wa wasichana na ndoa za utotoni katika jamii yetu.",
+  "Wasichana wanastahili kupata elimu na kulindwa dhidi ya mila zenye madhara.",
+  "Wazee na wazazi wanakataa tohara ya wasichana kwa mustakabali mwema.",
+];
+
+type TranslationMode = "en_to_maa" | "en_to_swh" | "swh_to_en";
 
 function ruleBasedGlossary(text: string) {
   let out = text.toLowerCase();
@@ -63,28 +71,46 @@ function ruleBasedGlossary(text: string) {
 
 export default function TranslateClient() {
   const [text, setText] = useState("");
-  const [targetLang, setTargetLang] = useState<"maa" | "swahili">("maa");
+  const [mode, setMode] = useState<TranslationMode>("en_to_maa");
   const [res, setRes] = useState<{ out: string; used: [string, string][]; source?: string } | null>(
     null,
   );
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const sourceLang = mode === "swh_to_en" ? "swahili" : "english";
+  const targetLang = mode === "en_to_maa" ? "maa" : mode === "en_to_swh" ? "swahili" : "english";
+
+  const modeTitle =
+    mode === "en_to_maa"
+      ? "English → Maa"
+      : mode === "en_to_swh"
+        ? "English → Swahili"
+        : "Swahili → English";
+
+  const targetLabel =
+    mode === "en_to_maa"
+      ? "Maa (Maasai)"
+      : mode === "en_to_swh"
+        ? "Swahili"
+        : "English";
+
+  const activeExamples = mode === "swh_to_en" ? EXAMPLES_SWH : EXAMPLES_EN;
+
   const go = async () => {
     if (!text.trim() || busy) return;
     setBusy(true);
     setCopied(false);
     try {
-      const r = await api.translate(text, targetLang);
-      const glossaryMatches = targetLang === "maa" ? ruleBasedGlossary(text).used : [];
+      const r = await api.translate(text, targetLang, sourceLang);
+      const glossaryMatches = mode === "en_to_maa" ? ruleBasedGlossary(text).used : [];
       setRes({
         out: r.translated_text || r.translation || "",
         used: glossaryMatches,
-        source: targetLang === "maa" ? "NLLB-200 + LoRA" : "NLLB-200",
+        source: mode === "en_to_maa" ? "NLLB-200 + LoRA" : "NLLB-200 Native",
       });
     } catch (e) {
-      // Fallback to offline rule-based dialect gloss if neural backend is unavailable (Maa only)
-      if (targetLang === "maa") {
+      if (mode === "en_to_maa") {
         const fallback = ruleBasedGlossary(text);
         if (fallback.used.length > 0) {
           setRes({
@@ -120,31 +146,37 @@ export default function TranslateClient() {
     <>
       <PageHead
         eyebrow="Role 02 · Outreach Translator"
-        title={`English → ${targetLang === "maa" ? "Maa" : "Swahili"}`}
-        desc={`Write an awareness message in English. The app drafts a ${
-          targetLang === "maa" ? "Maa (Maasai)" : "Swahili"
-        } version for your outreach team.`}
+        title={modeTitle}
+        desc={
+          mode === "swh_to_en"
+            ? "Translate Swahili field notes and community reports into English."
+            : `Write an awareness message in English. The app drafts a ${targetLabel} version for your outreach team.`
+        }
       />
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card-soft flex flex-col p-6 shadow-sm">
           <label
-            htmlFor="english-input"
+            htmlFor="source-input"
             className="mb-2 text-sm font-medium flex items-center justify-between"
           >
-            <span>English source message</span>
+            <span>{sourceLang === "swahili" ? "Swahili" : "English"} source message</span>
             <span className="text-xs text-muted-foreground">{text.length} chars</span>
           </label>
           <textarea
-            id="english-input"
+            id="source-input"
             rows={7}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="e.g. Protect our girls and send them to school."
+            placeholder={
+              sourceLang === "swahili"
+                ? "mfano: Komesha ukeketaji wa wasichana na ndoa za utotoni..."
+                : "e.g. Protect our girls and send them to school."
+            }
             className="w-full flex-1 rounded-xl border bg-card px-4 py-3 text-base outline-none focus:ring-2 focus:ring-ring transition"
           />
           <div className="mt-3 flex flex-wrap gap-2 items-center">
             <span className="text-xs font-medium text-muted-foreground mr-1">Quick examples:</span>
-            {EXAMPLES.map((e) => (
+            {activeExamples.map((e) => (
               <button
                 key={e}
                 type="button"
@@ -158,52 +190,75 @@ export default function TranslateClient() {
 
           <div className="mt-4 pt-3 border-t">
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Target Language
+              Translation Mode & Pair
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => {
-                  setTargetLang("maa");
+                  setMode("en_to_maa");
                   setRes(null);
                 }}
-                className={`flex flex-col items-start rounded-xl border p-3 text-left transition cursor-pointer ${
-                  targetLang === "maa"
+                className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition cursor-pointer ${
+                  mode === "en_to_maa"
                     ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary shadow-xs"
                     : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
               >
                 <div className="flex w-full items-center justify-between">
-                  <span className="font-semibold text-sm">Maa (Maasai)</span>
-                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
-                    LoRA Adapter
+                  <span className="font-semibold text-xs">EN → Maa</span>
+                  <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-400">
+                    LoRA
                   </span>
                 </div>
-                <span className="mt-1 text-xs text-muted-foreground">
-                  NLLB-200 + KnoxDevelopers LoRA
+                <span className="mt-1 text-[11px] text-muted-foreground">
+                  English to Maasai
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  setTargetLang("swahili");
+                  setMode("en_to_swh");
                   setRes(null);
                 }}
-                className={`flex flex-col items-start rounded-xl border p-3 text-left transition cursor-pointer ${
-                  targetLang === "swahili"
+                className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition cursor-pointer ${
+                  mode === "en_to_swh"
                     ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary shadow-xs"
                     : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
               >
                 <div className="flex w-full items-center justify-between">
-                  <span className="font-semibold text-sm">Swahili (Kiswahili)</span>
-                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                  <span className="font-semibold text-xs">EN → Swahili</span>
+                  <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-700 dark:text-emerald-400">
                     Native
                   </span>
                 </div>
-                <span className="mt-1 text-xs text-muted-foreground">
-                  NLLB-200 Native
+                <span className="mt-1 text-[11px] text-muted-foreground">
+                  English to Kiswahili
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("swh_to_en");
+                  setRes(null);
+                }}
+                className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition cursor-pointer ${
+                  mode === "swh_to_en"
+                    ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                }`}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <span className="font-semibold text-xs">Swahili → EN</span>
+                  <span className="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-700 dark:text-blue-400">
+                    Native
+                  </span>
+                </div>
+                <span className="mt-1 text-[11px] text-muted-foreground">
+                  Swahili to English
                 </span>
               </button>
             </div>
@@ -218,14 +273,12 @@ export default function TranslateClient() {
             {busy ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>
-                  Translating to {targetLang === "maa" ? "Maa" : "Swahili"} with AI model…
-                </span>
+                <span>Translating to {targetLabel} with AI model…</span>
               </>
             ) : (
               <>
                 <Languages className="h-5 w-5" />
-                <span>Translate to {targetLang === "maa" ? "Maa" : "Swahili"}</span>
+                <span>Translate to {targetLabel}</span>
                 <ArrowRight className="h-4 w-4 opacity-75" />
               </>
             )}
@@ -239,18 +292,18 @@ export default function TranslateClient() {
 
         <div className="card-soft flex flex-col p-6 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-medium">
-              {targetLang === "maa" ? "Maa (Maasai)" : "Swahili"} translation
-            </p>
+            <p className="text-sm font-medium">{targetLabel} translation</p>
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border ${
-                targetLang === "maa"
+                mode === "en_to_maa"
                   ? "bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-300"
-                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300"
+                  : mode === "en_to_swh"
+                    ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300"
+                    : "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300"
               }`}
             >
               <Sparkles className="h-3 w-3" />
-              {targetLang === "maa" ? "NLLB-200 + LoRA" : "NLLB-200"}
+              {mode === "en_to_maa" ? "NLLB-200 + LoRA" : "NLLB-200 Native"}
             </span>
           </div>
           <div className="flex-1 rounded-xl bg-muted/70 border p-4.5 min-h-[160px] flex items-center">
@@ -260,13 +313,12 @@ export default function TranslateClient() {
               </p>
             ) : (
               <p className="text-sm text-muted-foreground flex items-center gap-2">
-                Click translate to generate an outreach draft in{" "}
-                {targetLang === "maa" ? "Maa" : "Swahili"}.
+                Click translate to generate a draft in {targetLabel}.
               </p>
             )}
           </div>
 
-          {targetLang === "maa" && res && res.used.length > 0 && (
+          {mode === "en_to_maa" && res && res.used.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="w-full text-xs font-medium text-muted-foreground">
                 Cultural lexicon matches:
