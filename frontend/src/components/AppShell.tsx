@@ -43,8 +43,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="shuka h-1.5" />
         <div className="mx-auto flex max-w-7xl items-center gap-6 px-5 py-3">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground">
-              N
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-display text-lg text-primary-foreground shadow-xs">
+              K
             </span>
             <span className="leading-tight">
               <span className="block font-display text-lg">Kinga Binti</span>
