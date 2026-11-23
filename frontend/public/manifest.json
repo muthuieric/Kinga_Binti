@@ -1,0 +1,16 @@
+{
+  "name": "Kinga Binti — Community Narrative Monitor",
+  "short_name": "Kinga Binti",
+  "description": "Trilingual, consent-first AI for monitoring FGM and child marriage signals in Narok and Kajiado.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#B91C1C",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

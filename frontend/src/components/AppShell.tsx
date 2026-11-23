@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useT, type UiLang, type Key } from "@/lib/i18n";
 
@@ -19,7 +19,6 @@ const NAV: { href: string; k: Key }[] = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useT();
   const pathname = usePathname();
-  const router = useRouter();
   const [online, setOnline] = useState(true);
   useEffect(() => {
     setOnline(navigator.onLine);
@@ -65,7 +64,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     "whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground" +
                     (active ? " !bg-ink !text-ink-foreground" : "")
                   }
-                  onClick={() => router.refresh()}
                 >
                   {t(n.k)}
                 </Link>
@@ -103,7 +101,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   "whitespace-nowrap rounded-full px-3 py-1 text-sm text-muted-foreground" +
                   (active ? " !bg-ink !text-ink-foreground" : "")
                 }
-                onClick={() => router.refresh()}
               >
                 {t(n.k)}
               </Link>

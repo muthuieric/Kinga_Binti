@@ -302,7 +302,6 @@ export default function TranslateClient() {
                     : "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300"
               }`}
             >
-              <Sparkles className="h-3 w-3" />
               {mode === "en_to_maa" ? "NLLB-200 + LoRA" : "NLLB-200 Native"}
             </span>
           </div>
