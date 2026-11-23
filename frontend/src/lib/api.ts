@@ -108,6 +108,13 @@ export interface EthicsLedgerResponse {
   custodian_cbo?: string;
 }
 
+interface EthicsLedgerPayload {
+  total_audited_records?: number;
+  sovereignty_custodian?: string;
+  governance_model?: string;
+  audit_ledger?: EthicsLedgerResponse[];
+}
+
 export interface TranslateStatusResponse {
   available: boolean;
   model?: string;
@@ -146,7 +153,14 @@ export const api = {
   },
   stats: () => apiFetch<StatsResponse>("/api/stats"),
   exportUrl: (format: "json" | "csv") => `${API_BASE}/api/export?format=${format}`,
-  ethicsLedger: () => apiFetch<EthicsLedgerResponse[]>("/api/ethics/audit-ledger"),
+  ethicsLedger: async () => {
+    const payload = await apiFetch<EthicsLedgerPayload | EthicsLedgerResponse[]>(
+      "/api/ethics/audit-ledger",
+    );
+    // Backend returns { audit_ledger: [...] }; accept a bare array too for safety.
+    if (Array.isArray(payload)) return payload;
+    return payload.audit_ledger ?? [];
+  },
   withdrawConsent: (id: string) =>
     apiFetch<{ status: string }>(`/api/ethics/withdraw-consent/${id}`, { method: "POST" }),
   translate: (
